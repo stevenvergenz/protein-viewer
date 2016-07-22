@@ -78,7 +78,7 @@ function loadModels(done)
 					molecule.add( object );
 				}
 
-				console.log(`${item}: ${geometry.vertices.length} atoms, ${geometryBonds.vertices.length/2} bonds`);
+				console.log(item+': '+geometry.vertices.length+' atoms, '+(geometryBonds.vertices.length/2)+' bonds');
 
 				done(null, molecule);
 			});
