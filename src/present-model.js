@@ -104,8 +104,8 @@ function setupRenderer(done)
 
 		camera = new THREE.PerspectiveCamera(90, 1, 0.01, 10000);
 		camera.up.set(0,0,1);
-		camera.position.set(0, -5, 1.5);
-		camera.lookAt(new THREE.Vector3(0, 0, 0));
+		camera.position.set(0, -1, 1.5);
+		camera.lookAt(new THREE.Vector3(0, 0, 1.5));
 		root.add(camera);
 	}
 
@@ -138,7 +138,8 @@ function start(err, results)
 	console.log(results);
 
 	window.molecule = results[0][0];
-	root.add(results[0][0]);
+	//results[0][1].position.set(0,0,1.5);
+	root.add(results[0][1]);
 
 	// start animating
 	window.requestAnimationFrame(function animate(timestamp)
