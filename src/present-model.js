@@ -19,27 +19,27 @@ async.parallel(
 function loadModels(done)
 {
 	async.map(
-		['2M6C.pdb', '2VAA.pdb'],
+		['2M6C.pdb' , '2VAA.pdb'],
 
 		function(item, done)
 		{
-			console.log('loading', item);
 			var molecule = new THREE.Object3D();
 			var loader = new THREE.PDBLoader();
 			loader.load('models/'+item, function(geometry, geometryBonds, json)
 			{
-				var bondGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-				var atomGeometry = new THREE.IcosahedronGeometry( .01, 0 );
+				var atomGeometry = new THREE.BoxGeometry( .01, .01, .01 );
+				var bondGeometry = new THREE.BoxGeometry( .004, .004, 1 );
 
 				geometry.computeBoundingBox();
 				geometry.computeBoundingSphere();
-				var offset = geometry.center();
-				console.log(offset);
-				geometry.translate( -offset.x, -offset.y, -offset.z );
+				var offset = geometry.boundingBox.center();
 				var radius = geometry.boundingSphere.radius;
+
+				geometry.translate( -offset.x, -offset.y, -offset.z );
 				geometry.scale(1/radius, 1/radius, 1/radius);
 
-				//geometryBonds.translate( offset.x, offset.y, offset.z );
+				geometryBonds.translate( -offset.x, -offset.y, -offset.z );
+				geometryBonds.scale(1/radius, 1/radius, 1/radius);
 
 				for ( var i = 0; i < geometry.vertices.length; i ++ )
 				{
@@ -51,8 +51,6 @@ function loadModels(done)
 					var object = new THREE.Mesh( atomGeometry, material );
 
 					object.position.copy( position );
-					//object.position.multiplyScalar( 0.05 );
-					//object.scale.multiplyScalar( 25 );
 					molecule.add( object );
 
 					/*
@@ -71,16 +69,16 @@ function loadModels(done)
 				{
 					var start = geometryBonds.vertices[ i ];
 					var end = geometryBonds.vertices[ i + 1 ];
-					start.multiplyScalar( 75 );
-					end.multiplyScalar( 75 );
 
-					var object = new THREE.Mesh( bondGeometry, new THREE.MeshBasicMaterial( 0xffffff ) );
+					var object = new THREE.Mesh( bondGeometry, new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: true}) );
 					object.position.copy( start );
 					object.position.lerp( end, 0.5 );
-					object.scale.set( 5, 5, start.distanceTo( end ) );
+					object.scale.setZ( start.distanceTo( end ) );
 					object.lookAt( end );
-					//molecule.add( object );
+					molecule.add( object );
 				}
+
+				console.log(`${item}: ${geometry.vertices.length} atoms, ${geometryBonds.vertices.length/2} bonds`);
 
 				done(null, molecule);
 			});
@@ -99,14 +97,23 @@ function setupRenderer(done)
 		// set up preview renderer, in case we're out of world
 		renderer = new THREE.WebGLRenderer();
 		renderer.setSize(720, 720);
-		renderer.setClearColor( 0x888888 );
+		renderer.setClearColor( 0 );
 		document.body.appendChild(renderer.domElement);
 
-		camera = new THREE.PerspectiveCamera(90, 1, 0.01, 10000);
+		//camera = new THREE.PerspectiveCamera(90, 1, 0.01, 10000);
+		camera = new THREE.OrthographicCamera(-1.5, 1.5, 1.5, -1.5, 0.1, 100);
 		camera.up.set(0,0,1);
-		camera.position.set(0, -1, 1.5);
+		camera.position.set(1, 0, 1.5);
 		camera.lookAt(new THREE.Vector3(0, 0, 1.5));
 		root.add(camera);
+
+		// add bounding box
+		var box = new THREE.Mesh(
+			new THREE.BoxGeometry(3,3,3),
+			new THREE.MeshBasicMaterial({wireframe: true})
+		);
+		box.position.set(0,0,1.5);
+		root.add(box);
 	}
 
 	done();
@@ -118,7 +125,7 @@ function setupEnclosure(done)
 	if(altspace.inClient)
 	{
 		altspace.getEnclosure().then(function(e){
-			//root.position.set(32, -151.25, 32);
+			root.position.setY(-e.innerHeight/2);
 			root.scale.multiplyScalar(e.pixelsPerMeter);
 			root.rotation.set( -Math.PI/2, 0, 0 );
 			done();
@@ -138,8 +145,9 @@ function start(err, results)
 	console.log(results);
 
 	window.molecule = results[0][0];
-	//results[0][1].position.set(0,0,1.5);
-	root.add(results[0][1]);
+	results[0][0].position.set(0,0,1.5);
+	root.add(results[0][0]);
+
 
 	// start animating
 	window.requestAnimationFrame(function animate(timestamp)
