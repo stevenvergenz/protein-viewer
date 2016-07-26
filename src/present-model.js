@@ -25,7 +25,7 @@ function loadModels(done)
 		{
 			var molecule = new THREE.Object3D();
 			var loader = new THREE.PDBLoader();
-			loader.load('models/'+item, function(geometry, geometryBonds, json)
+			/*loader.load('models/'+item, function(geometry, geometryBonds, json)
 			{
 				var atomGeometry = new THREE.BoxGeometry( .01, .01, .01 );
 				var bondGeometry = new THREE.BoxGeometry( .004, .004, 1 );
@@ -53,16 +53,6 @@ function loadModels(done)
 					object.position.copy( position );
 					molecule.add( object );
 
-					/*
-					var atom = json.atoms[ i ];
-					var text = document.createElement( 'div' );
-					text.className = 'label';
-					text.style.color = 'rgb(' + atom[ 3 ][ 0 ] + ',' + atom[ 3 ][ 1 ] + ',' + atom[ 3 ][ 2 ] + ')';
-					text.textContent = atom[ 4 ];
-					var label = new THREE.CSS2DObject( text );
-					label.position.copy( object.position );
-					root.add( label );
-					*/
 				}
 
 				for ( var i = 0; i < geometryBonds.vertices.length; i += 2 )
@@ -81,6 +71,11 @@ function loadModels(done)
 				console.log(item+': '+geometry.vertices.length+' atoms, '+(geometryBonds.vertices.length/2)+' bonds');
 
 				done(null, molecule);
+			});*/
+			loader.load('models/'+item, function(models)
+			{
+				var model = models[0];
+				done(null, model);
 			});
 		},
 		done
@@ -103,7 +98,7 @@ function setupRenderer(done)
 		//camera = new THREE.PerspectiveCamera(90, 1, 0.01, 10000);
 		camera = new THREE.OrthographicCamera(-1.5, 1.5, 1.5, -1.5, 0.1, 100);
 		camera.up.set(0,0,1);
-		camera.position.set(1, 0, 1.5);
+		camera.position.set(1.4, 0, 1.5);
 		camera.lookAt(new THREE.Vector3(0, 0, 1.5));
 		root.add(camera);
 
@@ -145,8 +140,9 @@ function start(err, results)
 	console.log(results);
 
 	window.molecule = results[0][0];
-	results[0][0].position.set(0,0,1.5);
-	root.add(results[0][0]);
+	molecule.position.set(0,0,1.5);
+	molecule.scale.multiplyScalar(0.07);
+	root.add(molecule);
 
 
 	// start animating
