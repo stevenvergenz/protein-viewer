@@ -19,7 +19,7 @@ async.parallel(
 function loadModels(done)
 {
 	async.map(
-		['2M6C.pdb' /*, '2VAA.pdb'*/],
+		['2M6C.pdb' , '2VAA.pdb'],
 
 		function(item, done)
 		{
@@ -103,12 +103,12 @@ function setupRenderer(done)
 		root.add(camera);
 
 		// add bounding box
-		var box = new THREE.Mesh(
+		/*var box = new THREE.Mesh(
 			new THREE.BoxGeometry(3,3,3),
 			new THREE.MeshBasicMaterial({wireframe: true})
 		);
 		box.position.set(0,0,1.5);
-		root.add(box);
+		root.add(box);*/
 	}
 
 	done();
@@ -123,7 +123,7 @@ function setupEnclosure(done)
 			root.position.setY(-e.innerHeight/2);
 			root.scale.multiplyScalar(e.pixelsPerMeter);
 			root.rotation.set( -Math.PI/2, 0, 0 );
-			done();
+			done(e.innerDepth===1);
 		});
 	}
 	else {
@@ -139,9 +139,9 @@ function start(err, results)
 	}
 	console.log(results);
 
-	window.molecule = results[0][0];
+	window.molecule = results[0][1];
 	molecule.position.set(0,0,1.5);
-	molecule.scale.multiplyScalar(0.07);
+	molecule.scale.multiplyScalar(0.04);
 	root.add(molecule);
 
 
