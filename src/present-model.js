@@ -6,6 +6,36 @@ var scene = new THREE.Scene();
 var root = new THREE.Object3D();
 scene.add(root);
 
+
+function computeObjectRadius(o, center)
+{
+	center = center || new THREE.Vector3(0,0,0);
+
+	if(o instanceof THREE.Mesh)
+	{
+		var max = 0;
+		o.geometry.vertices.forEach(function(vert)
+		{
+			var test = vert.distanceTo(center);
+			if(test > max) max = test;
+		});
+
+		return max;
+	}
+	else
+	{
+		var max = 0;
+		o.children.forEach(function(child)
+		{
+			var inverse = new THREE.Matrix4().getInverse(child.matrix);
+			var test = computeObjectRadius(child, center.clone().applyMatrix4(inverse));
+			if(test > max) max = test;
+		});
+
+		return max;
+	}
+}
+
 // start loading everything in the right order
 async.parallel(
 	[
@@ -19,62 +49,19 @@ async.parallel(
 function loadModels(done)
 {
 	async.map(
-		['2M6C.pdb' /*, '2VAA.pdb'*/],
+		[/*'2M6C.pdb' ,*/ '2VAA.pdb'],
 
 		function(item, done)
 		{
 			var molecule = new THREE.Object3D();
 			var loader = new THREE.PDBLoader();
-			/*loader.load('models/'+item, function(geometry, geometryBonds, json)
-			{
-				var atomGeometry = new THREE.BoxGeometry( .01, .01, .01 );
-				var bondGeometry = new THREE.BoxGeometry( .004, .004, 1 );
-
-				geometry.computeBoundingBox();
-				geometry.computeBoundingSphere();
-				var offset = geometry.boundingBox.center();
-				var radius = geometry.boundingSphere.radius;
-
-				geometry.translate( -offset.x, -offset.y, -offset.z );
-				geometry.scale(1/radius, 1/radius, 1/radius);
-
-				geometryBonds.translate( -offset.x, -offset.y, -offset.z );
-				geometryBonds.scale(1/radius, 1/radius, 1/radius);
-
-				for ( var i = 0; i < geometry.vertices.length; i ++ )
-				{
-					var position = geometry.vertices[ i ];
-					var color = geometry.colors[ i ];
-					var element = geometry.elements[ i ];
-
-					var material = new THREE.MeshBasicMaterial( { color: color } );
-					var object = new THREE.Mesh( atomGeometry, material );
-
-					object.position.copy( position );
-					molecule.add( object );
-
-				}
-
-				for ( var i = 0; i < geometryBonds.vertices.length; i += 2 )
-				{
-					var start = geometryBonds.vertices[ i ];
-					var end = geometryBonds.vertices[ i + 1 ];
-
-					var object = new THREE.Mesh( bondGeometry, new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: true}) );
-					object.position.copy( start );
-					object.position.lerp( end, 0.5 );
-					object.scale.setZ( start.distanceTo( end ) );
-					object.lookAt( end );
-					molecule.add( object );
-				}
-
-				console.log(item+': '+geometry.vertices.length+' atoms, '+(geometryBonds.vertices.length/2)+' bonds');
-
-				done(null, molecule);
-			});*/
 			loader.load('models/'+item, function(models)
 			{
 				var model = models[0];
+
+				var radius = computeObjectRadius(model);
+				model.scale.multiplyScalar(1.5/radius);
+
 				done(null, model);
 			});
 		},
@@ -141,7 +128,6 @@ function start(err, results)
 
 	window.molecule = results[0][0];
 	molecule.position.set(0,0,1.5);
-	molecule.scale.multiplyScalar(0.12);
 	root.add(molecule);
 
 
