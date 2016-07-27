@@ -199,8 +199,8 @@
 					}
 
 					// lookup table is in picometers (1e-12), so convert to angstroms (1e-10)
-					var radius = 0.7*(covalentRadius[e]*0.01 || 1.25);
-					var mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 4,3), atomMap[e].material);
+					var radius = 0.5*(covalentRadius[e]*0.01 || 1.25);
+					var mesh = new THREE.Mesh(new THREE.BoxGeometry(2*radius, 2*radius, 2*radius), atomMap[e].material);
 					mesh.name = 'atom_'+atom.serial;
 
 					// position in angstroms

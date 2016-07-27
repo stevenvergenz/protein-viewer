@@ -49,7 +49,7 @@ async.parallel(
 function loadModels(done)
 {
 	async.map(
-		[/*'2M6C.pdb' ,*/ '2VAA.pdb'],
+		['2M6C.pdb' , '2VAA.pdb'],
 
 		function(item, done)
 		{
@@ -85,7 +85,7 @@ function setupRenderer(done)
 		//camera = new THREE.PerspectiveCamera(90, 1, 0.01, 10000);
 		camera = new THREE.OrthographicCamera(-1.5, 1.5, 1.5, -1.5, 0.1, 100);
 		camera.up.set(0,0,1);
-		camera.position.set(1.4, 0, 1.5);
+		camera.position.set(2, 0, 1.5);
 		camera.lookAt(new THREE.Vector3(0, 0, 1.5));
 		root.add(camera);
 
@@ -126,7 +126,7 @@ function start(err, results)
 	}
 	console.log(results);
 
-	window.molecule = results[0][0];
+	window.molecule = results[0][1];
 	molecule.position.set(0,0,1.5);
 	root.add(molecule);
 
