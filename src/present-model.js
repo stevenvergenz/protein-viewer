@@ -19,7 +19,7 @@ async.parallel(
 function loadModels(done)
 {
 	async.map(
-		['2M6C.pdb' , '2VAA.pdb'],
+		['2M6C.pdb' /*, '2VAA.pdb'*/],
 
 		function(item, done)
 		{

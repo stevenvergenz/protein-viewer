@@ -3,11 +3,9 @@
 (function(THREE)
 {
 	// atomic colors
-	var CPK = { "h": [ 255, 255, 255 ], "he": [ 217, 255, 255 ], "li": [ 204, 128, 255 ], "be": [ 194, 255, 0 ], "b": [ 255, 181, 181 ], "c": [ 144, 144, 144 ], "n": [ 48, 80, 248 ], "o": [ 255, 13, 13 ], "f": [ 144, 224, 80 ], "ne": [ 179, 227, 245 ], "na": [ 171, 92, 242 ], "mg": [ 138, 255, 0 ], "al": [ 191, 166, 166 ], "si": [ 240, 200, 160 ], "p": [ 255, 128, 0 ], "s": [ 255, 255, 48 ], "cl": [ 31, 240, 31 ], "ar": [ 128, 209, 227 ], "k": [ 143, 64, 212 ], "ca": [ 61, 255, 0 ], "sc": [ 230, 230, 230 ], "ti": [ 191, 194, 199 ], "v": [ 166, 166, 171 ], "cr": [ 138, 153, 199 ], "mn": [ 156, 122, 199 ], "fe": [ 224, 102, 51 ], "co": [ 240, 144, 160 ], "ni": [ 80, 208, 80 ], "cu": [ 200, 128, 51 ], "zn": [ 125, 128, 176 ], "ga": [ 194, 143, 143 ], "ge": [ 102, 143, 143 ], "as": [ 189, 128, 227 ], "se": [ 255, 161, 0 ], "br": [ 166, 41, 41 ], "kr": [ 92, 184, 209 ], "rb": [ 112, 46, 176 ], "sr": [ 0, 255, 0 ], "y": [ 148, 255, 255 ], "zr": [ 148, 224, 224 ], "nb": [ 115, 194, 201 ], "mo": [ 84, 181, 181 ], "tc": [ 59, 158, 158 ], "ru": [ 36, 143, 143 ], "rh": [ 10, 125, 140 ], "pd": [ 0, 105, 133 ], "ag": [ 192, 192, 192 ], "cd": [ 255, 217, 143 ], "in": [ 166, 117, 115 ], "sn": [ 102, 128, 128 ], "sb": [ 158, 99, 181 ], "te": [ 212, 122, 0 ], "i": [ 148, 0, 148 ], "xe": [ 66, 158, 176 ], "cs": [ 87, 23, 143 ], "ba": [ 0, 201, 0 ], "la": [ 112, 212, 255 ], "ce": [ 255, 255, 199 ], "pr": [ 217, 255, 199 ], "nd": [ 199, 255, 199 ], "pm": [ 163, 255, 199 ], "sm": [ 143, 255, 199 ], "eu": [ 97, 255, 199 ], "gd": [ 69, 255, 199 ], "tb": [ 48, 255, 199 ], "dy": [ 31, 255, 199 ], "ho": [ 0, 255, 156 ], "er": [ 0, 230, 117 ], "tm": [ 0, 212, 82 ], "yb": [ 0, 191, 56 ], "lu": [ 0, 171, 36 ], "hf": [ 77, 194, 255 ], "ta": [ 77, 166, 255 ], "w": [ 33, 148, 214 ], "re": [ 38, 125, 171 ], "os": [ 38, 102, 150 ], "ir": [ 23, 84, 135 ], "pt": [ 208, 208, 224 ], "au": [ 255, 209, 35 ], "hg": [ 184, 184, 208 ], "tl": [ 166, 84, 77 ], "pb": [ 87, 89, 97 ], "bi": [ 158, 79, 181 ], "po": [ 171, 92, 0 ], "at": [ 117, 79, 69 ], "rn": [ 66, 130, 150 ], "fr": [ 66, 0, 102 ], "ra": [ 0, 125, 0 ], "ac": [ 112, 171, 250 ], "th": [ 0, 186, 255 ], "pa": [ 0, 161, 255 ], "u": [ 0, 143, 255 ], "np": [ 0, 128, 255 ], "pu": [ 0, 107, 255 ], "am": [ 84, 92, 242 ], "cm": [ 120, 92, 227 ], "bk": [ 138, 79, 227 ], "cf": [ 161, 54, 212 ], "es": [ 179, 31, 212 ], "fm": [ 179, 31, 186 ], "md": [ 179, 13, 166 ], "no": [ 189, 13, 135 ], "lr": [ 199, 0, 102 ], "rf": [ 204, 0, 89 ], "db": [ 209, 0, 79 ], "sg": [ 217, 0, 69 ], "bh": [ 224, 0, 56 ], "hs": [ 230, 0, 46 ], "mt": [ 235, 0, 38 ], "ds": [ 235, 0, 38 ], "rg": [ 235, 0, 38 ], "cn": [ 235, 0, 38 ], "uut": [ 235, 0, 38 ], "uuq": [ 235, 0, 38 ], "uup": [ 235, 0, 38 ], "uuh": [ 235, 0, 38 ], "uus": [ 235, 0, 38 ], "uuo": [ 235, 0, 38 ] };
+	var CPK = {"h":16777215,"he":14286847,"li":13402367,"be":12779264,"b":16758197,"c":9474192,"n":3166456,"o":16715021,"f":9494608,"ne":11789301,"na":11230450,"mg":9109248,"al":12560038,"si":15780000,"p":16744448,"s":16777008,"cl":2093087,"ar":8442339,"k":9388244,"ca":4062976,"sc":15132390,"ti":12567239,"v":10921643,"cr":9083335,"mn":10255047,"fe":14706227,"co":15765664,"ni":5296208,"cu":13140019,"zn":8224944,"ga":12750735,"ge":6721423,"as":12419299,"se":16752896,"br":10889513,"kr":6076625,"rb":7351984,"sr":65280,"y":9764863,"zr":9756896,"nb":7586505,"mo":5551541,"tc":3907230,"ru":2396047,"rh":687500,"pd":27013,"ag":12632256,"cd":16767375,"in":10909043,"sn":6717568,"sb":10380213,"te":13924864,"i":9699476,"xe":4366000,"cs":5707663,"ba":51456,"la":7394559,"ce":16777159,"pr":14286791,"nd":13107143,"pm":10747847,"sm":9437127,"eu":6422471,"gd":4587463,"tb":3211207,"dy":2097095,"ho":65436,"er":58997,"tm":54354,"yb":48952,"lu":43812,"hf":5096191,"ta":5089023,"w":2200790,"re":2522539,"os":2516630,"ir":1528967,"pt":13684960,"au":16765219,"hg":12105936,"tl":10900557,"pb":5724513,"bi":10375093,"po":11230208,"at":7688005,"rn":4358806,"fr":4325478,"ra":32000,"ac":7384058,"th":47871,"pa":41471,"u":36863,"np":33023,"pu":27647,"am":5528818,"cm":7888099,"bk":9064419,"cf":10565332,"es":11739092,"fm":11739066,"md":11734438,"no":12389767,"lr":13041766,"rf":13369433,"db":13697103,"sg":14221381,"bh":14680120,"hs":15073326,"mt":15400998,"ds":15400998,"rg":15400998,"cn":15400998,"uut":15400998,"uuq":15400998,"uup":15400998,"uuh":15400998,"uus":15400998,"uuo":15400998};
 
-	//var CPK = {"h":65535,"he":65535,"li":33023,"be":65474,"b":46591,"c":37008,"n":20728,"o":3583,"f":57552,"ne":58359,"na":23803,"mg":65418,"al":42687,"si":51440,"p":33023,"s":65535,"cl":61471,"ar":53731,"k":16607,"ca":65341,"sc":59110,"ti":49919,"v":42671,"cr":39375,"mn":31455,"fe":26355,"co":37104,"ni":53328,"cu":33019,"zn":33021,"ga":36815,"ge":36847,"as":33023,"se":41471,"br":10671,"kr":47325,"rb":12016,"sr":65280,"y":65535,"zr":57588,"nb":49915,"mo":46581,"tc":40639,"ru":36783,"rh":32142,"pd":27013,"ag":49344,"cd":55807,"in":30199,"sn":32998,"sb":25535,"te":31444,"i":148,"xe":40690,"cs":6111,"ba":51456,"la":54527,"ce":65535,"pr":65503,"nd":65479,"pm":65511,"sm":65487,"eu":65511,"gd":65479,"tb":65527,"dy":65503,"ho":65436,"er":58997,"tm":54354,"yb":48952,"lu":43812,"hf":49919,"ta":42751,"w":38135,"re":32175,"os":26294,"ir":21655,"pt":53488,"au":53759,"hg":47352,"tl":21743,"pb":22903,"bi":20415,"po":23723,"at":20341,"rn":33494,"fr":102,"ra":32000,"ac":44026,"th":47871,"pa":41471,"u":36863,"np":33023,"pu":27647,"am":23798,"cm":23803,"bk":20459,"cf":14069,"es":8183,"fm":8123,"md":3511,"no":3519,"lr":231,"rf":221,"db":223,"sg":221,"bh":248,"hs":238,"mt":239,"ds":239,"rg":239,"cn":239,"uut":239,"uuq":239,"uup":239,"uuh":239,"uus":239,"uuo":239};
-
-	var covalentRadius = {h:25, li:145, be:105, b:85, c:70, n:65, o:60, f:50, na:180, mg:150, al:125, si:110, p:100, s:100, cl:100, k:220, ca:180, sc:160, ti:140, v:135, cr:140, mn:140, fe:140, co:135, ni:135, cu:135, zn:135, ga:130, ge:125, as:115, se:115, br:115};
+	var covalentRadius = {h:31, he:28, li:128, be:96, b:84, c:73, n:71, o:66, f:57, na:166, mg:141, al:121, si:111, p:107, s:105, cl:102, k:203, ca:176, sc:170, ti:160, v:153, cr:139, mn:139, fe:132, co:126, ni:124, cu:132, zn:122, ga:122, ge:120, as:119, se:120, br:120};
 
 	THREE.PDBLoader = function ( manager ) {
 		this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
@@ -73,7 +71,6 @@
 					var fields = match.slice(1).map(function(s){ return s.trim(); });
 
 					return {
-						text: match,
 						serial: parseInt(fields[0]),
 						name: fields[1],
 						altLoc: fields[2],
@@ -154,7 +151,7 @@
 		{
 			// define default options
 			options = options || {};
-			options.mergeLikeAtoms = options.mergeLikeAtoms || true;
+			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : true;
 
 			var molecules = [];
 
@@ -176,7 +173,12 @@
 				// compute offset
 				var offset = max.clone().add(min).multiplyScalar(0.5);
 
-				var stick = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 1), new THREE.MeshBasicMaterial({color: 0xffffff}));
+				var stick = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 1), new THREE.MeshBasicMaterial({color: 0xffffff}));
+				var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
+				bonds.name = 'bonds';
+				if(options.mergeLikeAtoms)
+					model.add(bonds);
+
 
 				// loop over all atoms in the molecule
 				molecule.atoms.forEach(function(atom, i)
@@ -190,17 +192,16 @@
 					// index materials and/or meshes
 					if(!atomMap[e])
 					{
-						var color = (CPK[e][0] << 16) | (CPK[e][1] << 8) | (CPK[e][2]);
-						atomMap[e] = new THREE.Mesh(new THREE.Geometry(), new THREE.MeshBasicMaterial({color: color}));
-						atomMap[e].name = e;
+						atomMap[e] = new THREE.Mesh(new THREE.Geometry(), new THREE.MeshBasicMaterial({color: CPK[e]}));
+						atomMap[e].name = e+'_group';
 						if(options.mergeLikeAtoms)
 							model.add(atomMap[e]);
 					}
 
 					// lookup table is in picometers (1e-12), so convert to angstroms (1e-10)
-					var radius = (covalentRadius[e]*0.01 || 1.25)/1.5;
-					var mesh = new THREE.Mesh(new THREE.BoxGeometry(radius, radius, radius), atomMap[e].material);
-					mesh.name = e;
+					var radius = 0.7*(covalentRadius[e]*0.01 || 1.25);
+					var mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 4,3), atomMap[e].material);
+					mesh.name = 'atom_'+atom.serial;
 
 					// position in angstroms
 					mesh.position.set(atom.x, atom.y, atom.z).sub(offset);
@@ -216,10 +217,6 @@
 					* Generate bond sticks
 					*/
 
-					var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-					if(options.mergeLikeAtoms)
-						model.add(bonds);
-
 					// look ahead for any atoms that are nearby
 					for(var j=i+1; j<molecule.atoms.length; j++)
 					{
@@ -227,11 +224,11 @@
 						var v2 = new THREE.Vector3(neighbor.x, neighbor.y, neighbor.z).sub(offset);
 
 						// get distance between atoms, compared to covalent radii
-						var dist = mesh.position.distanceTo(v2)
-							/ (0.01*covalentRadius[e] + 0.01*covalentRadius[neighbor.element.toLowerCase()]);
+						var dist = mesh.position.distanceTo(v2);
+						var covalentDist = 0.01*covalentRadius[e] + 0.01*covalentRadius[neighbor.element.toLowerCase()];
 
 						// they are bonded
-						if( Math.abs(dist-1) < 0.15 )
+						if( Math.abs(dist - covalentDist) <= 0.15*covalentDist )
 						{
 							// add to bond map
 							if(bondMap[i]) bondMap[i].push(j);
@@ -243,6 +240,39 @@
 							stick.position.lerp( end, 0.5 );
 							stick.scale.setZ( start.distanceTo( end ) );
 							stick.lookAt( end );
+
+							if(options.mergeLikeAtoms)
+								bonds.geometry.mergeMesh(stick);
+							else
+								model.add( stick.clone() );
+						}
+					}
+				});
+
+				// generate manual bonds
+				json.bonds.forEach(function(bond)
+				{
+					for(var i=1; bond['bond'+i] && i<=4; i++)
+					{
+						// make sure a < b
+						var a = Math.min(bond.atomIndex, bond['bond'+i]) - 1,
+							b = Math.max(bond.atomIndex, bond['bond'+i]) - 1;
+						
+						var aa = molecule.atoms[a], ab = molecule.atoms[b];
+						var va = new THREE.Vector3(aa.x, aa.y, aa.z).sub(offset);
+						var vb = new THREE.Vector3(ab.x, ab.y, ab.z).sub(offset);
+
+						if( !bondMap[a] || !bondMap[a].includes(b) )
+						{
+							// add to bond map
+							bondMap[a] = bondMap[a] || [];
+							bondMap[a].push(b);
+
+							// generate stick
+							stick.position.copy( va );
+							stick.position.lerp( vb, 0.5 );
+							stick.scale.setZ( va.distanceTo( vb ) );
+							stick.lookAt( vb );
 
 							if(options.mergeLikeAtoms)
 								bonds.geometry.mergeMesh(stick);
