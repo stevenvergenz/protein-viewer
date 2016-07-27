@@ -208,7 +208,15 @@
 
 					// add to molecule
 					if(options.mergeLikeAtoms)
+					{
+						if(atomMap[e].geometry.faces.length*3 + mesh.geometry.faces.length*3 > 65000)
+						{
+							atomMap[e] = new THREE.Mesh(new THREE.Geometry(), atomMap[e].material);
+							model.add(atomMap[e]);
+						}
+
 						atomMap[e].geometry.mergeMesh(mesh);
+					}
 					else
 						model.add(mesh);
 
@@ -242,7 +250,15 @@
 							stick.lookAt( end );
 
 							if(options.mergeLikeAtoms)
+							{
+								if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > 65000)
+								{
+									bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
+									model.add(bonds);
+								}
+
 								bonds.geometry.mergeMesh(stick);
+							}
 							else
 								model.add( stick.clone() );
 						}
@@ -275,7 +291,15 @@
 							stick.lookAt( vb );
 
 							if(options.mergeLikeAtoms)
+							{
+								if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > 65000)
+								{
+									bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
+									model.add(bonds);
+								}
+
 								bonds.geometry.mergeMesh(stick);
+							}
 							else
 								model.add( stick.clone() );
 						}
