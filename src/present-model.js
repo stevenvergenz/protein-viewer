@@ -60,7 +60,7 @@ function loadModels(done)
 				var model = models[0];
 
 				var radius = computeObjectRadius(model);
-				model.scale.multiplyScalar(1.5/radius);
+				model.scale.multiplyScalar(1.0/radius);
 
 				done(null, model);
 			});
