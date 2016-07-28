@@ -152,6 +152,8 @@
 			// define default options
 			options = options || {};
 			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : true;
+			options.meshVertexLimit = options.meshVertexLimit || 65000;
+			options.bondFudgeFactor = options.bondFudgeFactor || 0.15;
 
 			var molecules = [];
 
@@ -173,7 +175,8 @@
 				// compute offset
 				var offset = max.clone().add(min).multiplyScalar(0.5);
 
-				var stick = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 1), new THREE.MeshBasicMaterial({color: 0xffffff}));
+				var stick = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true), new THREE.MeshBasicMaterial({color: 0xffffff}));
+				stick.geometry.rotateX(Math.PI/2);
 				var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
 				bonds.name = 'bonds';
 				if(options.mergeLikeAtoms)
@@ -209,7 +212,7 @@
 					// add to molecule
 					if(options.mergeLikeAtoms)
 					{
-						if(atomMap[e].geometry.faces.length*3 + mesh.geometry.faces.length*3 > 65000)
+						if(atomMap[e].geometry.faces.length*3 + mesh.geometry.faces.length*3 > options.meshVertexLimit)
 						{
 							atomMap[e] = new THREE.Mesh(new THREE.Geometry(), atomMap[e].material);
 							model.add(atomMap[e]);
@@ -236,7 +239,7 @@
 						var covalentDist = 0.01*covalentRadius[e] + 0.01*covalentRadius[neighbor.element.toLowerCase()];
 
 						// they are bonded
-						if( Math.abs(dist - covalentDist) <= 0.15*covalentDist )
+						if( Math.abs(dist - covalentDist) <= options.bondFudgeFactor*covalentDist )
 						{
 							// add to bond map
 							if(bondMap[i]) bondMap[i].push(j);
@@ -251,7 +254,7 @@
 
 							if(options.mergeLikeAtoms)
 							{
-								if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > 65000)
+								if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
 								{
 									bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
 									model.add(bonds);
@@ -292,7 +295,7 @@
 
 							if(options.mergeLikeAtoms)
 							{
-								if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > 65000)
+								if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
 								{
 									bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
 									model.add(bonds);
@@ -305,6 +308,12 @@
 						}
 					}
 				});
+
+				console.log('most bonded atom has:',
+					Object.keys(bondMap).reduce(function(sum,o){
+						return Math.max(sum, o.length);
+					}, 0)
+				);
 
 				model.traverse(function(o){
 					if(o.geometry && o.geometry.faces.length === 0){
