@@ -128,7 +128,7 @@ function start(err, results)
 
 	window.molecule = results[0][1];
 	molecule.position.set(0,0,1.5);
-	molecule.scale.set(.5,.5,.5);
+	molecule.scale.set(.2,.2,.2);
 	root.add(molecule);
 
 
