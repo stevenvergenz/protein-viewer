@@ -71,6 +71,7 @@
 					var fields = match.slice(1).map(function(s){ return s.trim(); });
 
 					return {
+						type: match[0].slice(0,6).trim(),
 						serial: parseInt(fields[0]),
 						name: fields[1],
 						altLoc: fields[2],
@@ -158,7 +159,7 @@
 			var molecules = [];
 
 			// loop over all models in the PDB
-			json.models.forEach(function(molecule)
+			json.models.forEach(function(molecule, molecIndex)
 			{
 				var model = new THREE.Object3D();
 				var atomMap = {};
@@ -320,6 +321,25 @@
 						console.log('No faces in mesh', o.name);
 					}
 				});
+
+				/*var bondedAtoms = [];
+				for(var i in bondMap){
+					if(!bondedAtoms.includes(i))
+						bondedAtoms.push(i);
+					bondMap[i].forEach(function(a){
+						if(!bondedAtoms.includes(a))
+							bondedAtoms.push(a);
+					});
+				}
+
+				for(var i=0; i<molecule.atoms.length; i++)
+				{
+					if(!bondedAtoms.includes(i)){
+						console.log('atom', molecule.atoms[i], 'is unbonded!');
+					}
+				}*/
+
+				model.userData = {json: json, index: molecIndex};
 
 				molecules.push(model);
 			});
