@@ -60,7 +60,7 @@ function loadModels(done)
 				var model = models[0];
 
 				var radius = computeObjectRadius(model);
-				model.scale.multiplyScalar(1.5/radius);
+				model.scale.multiplyScalar(1.7/radius);
 
 				done(null, model);
 			});
@@ -128,6 +128,7 @@ function start(err, results)
 
 	window.molecule = results[0][0];
 	molecule.position.set(0,0,1.5);
+	molecule.scale.set(.05,.05,.05);
 	root.add(molecule);
 
 
