@@ -55,10 +55,8 @@ function loadModels(done)
 		{
 			var molecule = new THREE.Object3D();
 			var loader = new THREE.PDBLoader();
-			loader.load('models/'+item, function(models)
+			loader.load('models/'+item, function(model)
 			{
-				var model = models[0];
-
 				var radius = computeObjectRadius(model);
 				model.scale.multiplyScalar(1.5/radius);
 
@@ -126,7 +124,7 @@ function start(err, results)
 	}
 	console.log(results);
 
-	window.molecule = results[0][0];
+	window.molecule = results[0][1];
 	molecule.position.set(0,0,1.5);
 	root.add(molecule);
 

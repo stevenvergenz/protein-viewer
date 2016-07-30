@@ -110,30 +110,28 @@
 					return null;
 			}
 		
-			var lines = text.split('\n');
+			var lines = text.split('\r\n');
+			if(lines.length === 1)
+				lines = text.split('\n');
+			
 			var cursor = 0;
 			var data = {};
 
 			// check for MODELs
-			data.models = [];
-			do
-			{
-				var start = lines.slice(cursor).findIndex(function(e,i){ return /^MODEL/.test(e); });
-				var end   = lines.slice(cursor).findIndex(function(e,i){ return /^ENDMDL/.test(e); });
-				if( start !== -1 && end !== -1 ){
-					data.models.push( parseModel( lines.slice(cursor+start, cursor+end+1) ) );
-					cursor += end+1;
-				}
+			var start = lines.slice(cursor).findIndex(function(e,i){ return /^MODEL/.test(e); });
+			var end   = lines.slice(cursor).findIndex(function(e,i){ return /^ENDMDL/.test(e); });
+			if( start !== -1 && end !== -1 ){
+				data.model = parseModel( lines.slice(cursor+start, cursor+end+1) );
+				cursor += end+1;
 			}
-			while( start !== -1 && end !== -1 );
 
 			// load all atoms into one model if no MODEL/ENDMDL tags
-			if(data.models.length === 0)
+			if(!data.model)
 			{
 				var defaultModel = lines
 					.map(function(e){ return parseAtom(e); })
 					.filter(function(e){ return !!e; });
-				data.models.push({atoms: defaultModel});
+				data.model = {atoms: defaultModel};
 			}
 
 			// load manual connections
@@ -154,197 +152,203 @@
 			options = options || {};
 			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : true;
 			options.meshVertexLimit = options.meshVertexLimit || 65000;
-			options.bondFudgeFactor = options.bondFudgeFactor || 0.15;
+			options.bondFudgeFactor = options.bondFudgeFactor || 0.14;
+			options.verbose = options.verbose !== undefined ? options.verbose : true;
 
-			var molecules = [];
+			var molecule = json.model;
+			
+			var model = new THREE.Object3D();
+			var atomMap = {};
+			var bondMap = {};
 
-			// loop over all models in the PDB
-			json.models.forEach(function(molecule, molecIndex)
+			// compute bounding box
+			var max = new THREE.Vector3(), min = new THREE.Vector3();
+			molecule.atoms.forEach(function(a){
+				var pos = new THREE.Vector3(a.x, a.y, a.z);
+				max.max(pos);
+				min.min(pos);
+			});
+
+			// compute offset
+			var offset = max.clone().add(min).multiplyScalar(0.5);
+
+			var stick = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true), new THREE.MeshBasicMaterial({color: 0xffffff}));
+			stick.geometry.rotateX(Math.PI/2);
+			var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
+			bonds.name = 'bonds';
+			if(options.mergeLikeAtoms)
+				model.add(bonds);
+
+
+			// loop over all atoms in the molecule
+			molecule.atoms.forEach(function(atom, i)
 			{
-				var model = new THREE.Object3D();
-				var atomMap = {};
-				var bondMap = {};
+				/*
+				* Generate atom balls
+				*/
 
-				// compute bounding box
-				var max = new THREE.Vector3(), min = new THREE.Vector3();
-				molecule.atoms.forEach(function(a){
-					var pos = new THREE.Vector3(a.x, a.y, a.z);
-					max.max(pos);
-					min.min(pos);
-				});
+				var e = atom.element.toLowerCase();
 
-				// compute offset
-				var offset = max.clone().add(min).multiplyScalar(0.5);
-
-				var stick = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true), new THREE.MeshBasicMaterial({color: 0xffffff}));
-				stick.geometry.rotateX(Math.PI/2);
-				var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-				bonds.name = 'bonds';
-				if(options.mergeLikeAtoms)
-					model.add(bonds);
-
-
-				// loop over all atoms in the molecule
-				molecule.atoms.forEach(function(atom, i)
+				// index materials and/or meshes
+				if(!atomMap[e])
 				{
-					/*
-					* Generate atom balls
-					*/
-
-					var e = atom.element.toLowerCase();
-
-					// index materials and/or meshes
-					if(!atomMap[e])
-					{
-						atomMap[e] = new THREE.Mesh(new THREE.Geometry(), new THREE.MeshBasicMaterial({color: CPK[e]}));
-						atomMap[e].name = e+'_group';
-						if(options.mergeLikeAtoms)
-							model.add(atomMap[e]);
-					}
-
-					// lookup table is in picometers (1e-12), so convert to angstroms (1e-10)
-					var radius = 0.5*(covalentRadius[e]*0.01 || 1.25);
-					var mesh = new THREE.Mesh(new THREE.BoxGeometry(2*radius, 2*radius, 2*radius), atomMap[e].material);
-					mesh.name = 'atom_'+atom.serial;
-
-					// position in angstroms
-					mesh.position.set(atom.x, atom.y, atom.z).sub(offset);
-
-					// add to molecule
+					atomMap[e] = new THREE.Mesh(new THREE.Geometry(), new THREE.MeshBasicMaterial({color: CPK[e]}));
+					atomMap[e].name = e+'_group';
 					if(options.mergeLikeAtoms)
-					{
-						if(atomMap[e].geometry.faces.length*3 + mesh.geometry.faces.length*3 > options.meshVertexLimit)
-						{
-							atomMap[e] = new THREE.Mesh(new THREE.Geometry(), atomMap[e].material);
-							model.add(atomMap[e]);
-						}
+						model.add(atomMap[e]);
+				}
 
-						atomMap[e].geometry.mergeMesh(mesh);
-					}
-					else
-						model.add(mesh);
+				// lookup table is in picometers (1e-12), so convert to angstroms (1e-10)
+				var radius = 0.25*(covalentRadius[e]*0.01 || 1.25);
+				var mesh = new THREE.Mesh(new THREE.BoxGeometry(2*radius, 2*radius, 2*radius), atomMap[e].material);
+				mesh.name = 'atom_'+atom.serial;
 
+				// position in angstroms
+				mesh.position.set(atom.x, atom.y, atom.z).sub(offset);
 
-					/*
-					* Generate bond sticks
-					*/
-
-					// look ahead for any atoms that are nearby
-					for(var j=i+1; j<molecule.atoms.length; j++)
-					{
-						var neighbor = molecule.atoms[j];
-						var v2 = new THREE.Vector3(neighbor.x, neighbor.y, neighbor.z).sub(offset);
-
-						// get distance between atoms, compared to covalent radii
-						var dist = mesh.position.distanceTo(v2);
-						var covalentDist = 0.01*covalentRadius[e] + 0.01*covalentRadius[neighbor.element.toLowerCase()];
-
-						// they are bonded
-						if( Math.abs(dist - covalentDist) <= options.bondFudgeFactor*covalentDist )
-						{
-							// add to bond map
-							if(bondMap[i]) bondMap[i].push(j);
-							else bondMap[i] = [j];
-
-							// generate stick
-							var start = mesh.position, end = v2;
-							stick.position.copy( start );
-							stick.position.lerp( end, 0.5 );
-							stick.scale.setZ( start.distanceTo( end ) );
-							stick.lookAt( end );
-
-							if(options.mergeLikeAtoms)
-							{
-								if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
-								{
-									bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-									model.add(bonds);
-								}
-
-								bonds.geometry.mergeMesh(stick);
-							}
-							else
-								model.add( stick.clone() );
-						}
-					}
-				});
-
-				// generate manual bonds
-				json.bonds.forEach(function(bond)
+				// add to molecule
+				if(options.mergeLikeAtoms)
 				{
-					for(var i=1; bond['bond'+i] && i<=4; i++)
+					if(atomMap[e].geometry.faces.length*3 + mesh.geometry.faces.length*3 > options.meshVertexLimit)
 					{
-						// make sure a < b
-						var a = Math.min(bond.atomIndex, bond['bond'+i]) - 1,
-							b = Math.max(bond.atomIndex, bond['bond'+i]) - 1;
-						
-						var aa = molecule.atoms[a], ab = molecule.atoms[b];
-						var va = new THREE.Vector3(aa.x, aa.y, aa.z).sub(offset);
-						var vb = new THREE.Vector3(ab.x, ab.y, ab.z).sub(offset);
-
-						if( !bondMap[a] || !bondMap[a].includes(b) )
-						{
-							// add to bond map
-							bondMap[a] = bondMap[a] || [];
-							bondMap[a].push(b);
-
-							// generate stick
-							stick.position.copy( va );
-							stick.position.lerp( vb, 0.5 );
-							stick.scale.setZ( va.distanceTo( vb ) );
-							stick.lookAt( vb );
-
-							if(options.mergeLikeAtoms)
-							{
-								if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
-								{
-									bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-									model.add(bonds);
-								}
-
-								bonds.geometry.mergeMesh(stick);
-							}
-							else
-								model.add( stick.clone() );
-						}
+						atomMap[e] = new THREE.Mesh(new THREE.Geometry(), atomMap[e].material);
+						model.add(atomMap[e]);
 					}
-				});
 
-				console.log('most bonded atom has:',
-					Object.keys(bondMap).reduce(function(sum,o){
-						return Math.max(sum, o.length);
-					}, 0)
-				);
+					atomMap[e].geometry.mergeMesh(mesh);
+				}
+				else
+					model.add(mesh);
 
+
+				/*
+				* Generate bond sticks
+				*/
+
+				// look ahead for any atoms that are nearby
+				for(var j=i+1; j<molecule.atoms.length; j++)
+				{
+					var neighbor = molecule.atoms[j];
+					if(neighbor.chainId !== atom.chainId)
+						continue;
+					
+					var v2 = new THREE.Vector3(neighbor.x, neighbor.y, neighbor.z).sub(offset);
+
+					// get distance between atoms, compared to covalent radii
+					var dist = mesh.position.distanceTo(v2);
+					var covalentDist = 0.01*covalentRadius[e] + 0.01*covalentRadius[neighbor.element.toLowerCase()];
+
+					// they are bonded
+					if( Math.abs(dist - covalentDist) <= options.bondFudgeFactor*covalentDist )
+					{
+						// add to bond map
+						if(bondMap[i]) bondMap[i].push(j);
+						else bondMap[i] = [j];
+
+						// generate stick
+						var start = mesh.position, end = v2;
+						stick.position.copy( start );
+						stick.position.lerp( end, 0.5 );
+						stick.scale.setZ( start.distanceTo( end ) );
+						stick.lookAt( end );
+
+						if(options.mergeLikeAtoms)
+						{
+							if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
+							{
+								bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
+								model.add(bonds);
+							}
+
+							bonds.geometry.mergeMesh(stick);
+						}
+						else
+							model.add( stick.clone() );
+					}
+				}
+			});
+
+			// generate manual bonds
+			json.bonds.forEach(function(bond)
+			{
+				for(var i=1; bond['bond'+i] && i<=4; i++)
+				{
+					// make sure a < b
+					var a = Math.min(bond.atomIndex, bond['bond'+i]) - 1,
+						b = Math.max(bond.atomIndex, bond['bond'+i]) - 1;
+					
+					var aa = molecule.atoms[a], ab = molecule.atoms[b];
+					var va = new THREE.Vector3(aa.x, aa.y, aa.z).sub(offset);
+					var vb = new THREE.Vector3(ab.x, ab.y, ab.z).sub(offset);
+
+					if( !bondMap[a] || !bondMap[a].includes(b) )
+					{
+						// add to bond map
+						bondMap[a] = bondMap[a] || [];
+						bondMap[a].push(b);
+
+						// generate stick
+						stick.position.copy( va );
+						stick.position.lerp( vb, 0.5 );
+						stick.scale.setZ( va.distanceTo( vb ) );
+						stick.lookAt( vb );
+
+						if(options.mergeLikeAtoms)
+						{
+							if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
+							{
+								bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
+								model.add(bonds);
+							}
+
+							bonds.geometry.mergeMesh(stick);
+						}
+						else
+							model.add( stick.clone() );
+					}
+				}
+			});
+
+			if(options.verbose)
+			{
+				// check for empty geometry
 				model.traverse(function(o){
 					if(o.geometry && o.geometry.faces.length === 0){
 						console.log('No faces in mesh', o.name);
 					}
 				});
 
-				/*var bondedAtoms = [];
-				for(var i in bondMap){
-					if(!bondedAtoms.includes(i))
-						bondedAtoms.push(i);
-					bondMap[i].forEach(function(a){
-						if(!bondedAtoms.includes(a))
-							bondedAtoms.push(a);
-					});
-				}
-
-				for(var i=0; i<molecule.atoms.length; i++)
+				// check for unbonded or overbonded atoms
+				var bondCount = {};
+				molecule.atoms.forEach(function(a,i){
+					bondCount[i] = 0;
+				});
+				
+				for(var i in bondMap)
 				{
-					if(!bondedAtoms.includes(i)){
-						console.log('atom', molecule.atoms[i], 'is unbonded!');
+					bondCount[i] += bondMap[i].length;
+					for(var j=0; j<bondMap[i].length; j++){
+						bondCount[ bondMap[i][j] ] += 1;
 					}
-				}*/
+				}
+				
+				console.log('Most bonded atom has:',
+					Object.keys(bondCount).reduce(function(sum,ai){
+						return Math.max(sum, bondCount[ai]);
+					}, 0)
+				);
+				
+				for(var i in bondCount)
+				{
+					if(bondCount[i] === 0 && molecule.atoms[i].type !== 'HETATM'){
+						console.log(molecule.atoms[i], 'is unbonded!');
+					}
+				}
+			}
 
-				model.userData = {json: json, index: molecIndex};
+			model.userData = json;
 
-				molecules.push(model);
-			});
-
-			return molecules;
+			return model;
 		}
 	};
 
