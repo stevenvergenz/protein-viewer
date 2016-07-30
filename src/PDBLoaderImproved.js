@@ -32,6 +32,11 @@
 
 		parsePDB: function(text)
 		{
+			function parseChainInfo(line)
+			{
+				
+			}
+			
 			function parseModel(lines)
 			{
 				var modelRE = /^MODEL     (.{4})/;
@@ -116,6 +121,8 @@
 			
 			var cursor = 0;
 			var data = {};
+			
+			
 
 			// check for MODELs
 			var start = lines.slice(cursor).findIndex(function(e,i){ return /^MODEL/.test(e); });
@@ -150,7 +157,7 @@
 		{
 			// define default options
 			options = options || {};
-			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : true;
+			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : false;
 			options.meshVertexLimit = options.meshVertexLimit || 65000;
 			options.bondFudgeFactor = options.bondFudgeFactor || 0.14;
 			options.verbose = options.verbose !== undefined ? options.verbose : true;
@@ -199,12 +206,13 @@
 				}
 
 				// lookup table is in picometers (1e-12), so convert to angstroms (1e-10)
-				var radius = 0.25*(covalentRadius[e]*0.01 || 1.25);
+				var radius = 0.15*(covalentRadius[e]*0.01 || 1.25);
 				var mesh = new THREE.Mesh(new THREE.BoxGeometry(2*radius, 2*radius, 2*radius), atomMap[e].material);
 				mesh.name = 'atom_'+atom.serial;
 
 				// position in angstroms
 				mesh.position.set(atom.x, atom.y, atom.z).sub(offset);
+				mesh.updateMatrix();
 
 				// add to molecule
 				if(options.mergeLikeAtoms)

@@ -10,30 +10,27 @@ scene.add(root);
 function computeObjectRadius(o, center)
 {
 	center = center || new THREE.Vector3(0,0,0);
+	var max = 0;
 
 	if(o instanceof THREE.Mesh)
 	{
-		var max = 0;
 		o.geometry.vertices.forEach(function(vert)
 		{
 			var test = vert.distanceTo(center);
 			if(test > max) max = test;
 		});
-
-		return max;
 	}
 	else
 	{
-		var max = 0;
 		o.children.forEach(function(child)
 		{
 			var inverse = new THREE.Matrix4().getInverse(child.matrix);
 			var test = computeObjectRadius(child, center.clone().applyMatrix4(inverse));
 			if(test > max) max = test;
 		});
-
-		return max;
 	}
+	
+	return max;
 }
 
 // start loading everything in the right order
@@ -49,7 +46,7 @@ async.parallel(
 function loadModels(done)
 {
 	async.map(
-		['2M6C.pdb' , '2VAA.pdb'],
+		['2M6C.pdb' /*, '2VAA.pdb'*/],
 
 		function(item, done)
 		{
@@ -59,6 +56,7 @@ function loadModels(done)
 			{
 				var radius = computeObjectRadius(model);
 				model.scale.multiplyScalar(1.5/radius);
+				console.log(radius);
 
 				done(null, model);
 			});
@@ -124,7 +122,7 @@ function start(err, results)
 	}
 	console.log(results);
 
-	window.molecule = results[0][1];
+	window.molecule = results[0][0];
 	molecule.position.set(0,0,1.5);
 	root.add(molecule);
 
