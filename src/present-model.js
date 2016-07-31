@@ -129,7 +129,7 @@ function start(err, results)
 	window.molecule = results[0][1];
 	molecule.position.set(0,0,1.5);
 	molecule.scale.set(.05,.05,.05);
-	molecule.rotation.set(0,1,0)
+	molecule.rotation.set(0,0,0)
 	root.add(molecule);
 
 
