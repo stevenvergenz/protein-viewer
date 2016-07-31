@@ -34,7 +34,17 @@
 		{
 			function parseChainInfo(line)
 			{
-				
+				var chainRE = /^DBREF (.{4}) (.) (.{4})(.) (.{4})(.)/;
+				var match = chainRE.exec(line);
+				if(match){
+					return {
+						proteinID: match[1].trim(),
+						chainID: match[2].trim(),
+						seqBegin: parseInt(match[3]),
+						seqEnd: parseInt(match[5])
+					}
+				}
+				else return null;
 			}
 			
 			function parseModel(lines)
