@@ -127,7 +127,7 @@ function start(err, results)
 	console.log(results);
 
 	window.molecule = results[0][1];
-	molecule.position.set(0,0,1.5);
+	molecule.position.set(0,0,1.0);
 	molecule.scale.set(.03,.03,.03);
 	molecule.rotation.set(1.5,1.5,0)
 	root.add(molecule);
