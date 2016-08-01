@@ -46,17 +46,27 @@ async.parallel(
 
 function loadModels(done)
 {
+	var defaultTransform = {
+		'2VAA': new THREE.Matrix4().fromArray([5.0921660370876786e-18, 0.022933077067136765, -5.0921660370876786e-18, 0, 0, 5.0921660370876786e-18, 0.022933077067136765, 0, 0.022933077067136765, -5.0921660370876786e-18, 0, 0, 0, 0, 1, 1]),
+		'2M6C': new THREE.Matrix4().fromArray([0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 1.5, 1])
+	};
+
 	async.map(
-		['2M6C.pdb' , '2VAA.pdb'],
+		['2M6C' , '2VAA'],
 
 		function(item, done)
 		{
 			var molecule = new THREE.Object3D();
 			var loader = new THREE.PDBLoader();
-			loader.load('models/'+item, function(model)
+			loader.load('models/'+item+'.pdb', function(model)
 			{
-				var radius = computeObjectRadius(model);
-				model.scale.multiplyScalar(1.0/radius);
+				if(defaultTransform[item])
+					model.applyMatrix( defaultTransform[item] );
+				else
+				{
+					var radius = computeObjectRadius(model);
+					model.scale.multiplyScalar(1.0/radius);
+				}
 
 				done(null, model);
 			});
@@ -127,8 +137,6 @@ function start(err, results)
 	console.log(results);
 
 	window.molecule = results[0][1];
-	molecule.position.set(0,0,1.0);
-	molecule.rotation.set(Math.PI/2, Math.PI/2, 0);
 	root.add(molecule);
 
 
