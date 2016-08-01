@@ -38,7 +38,8 @@ async.parallel(
 	[
 		loadModels,
 		setupRenderer,
-		setupEnclosure
+		setupEnclosure,
+		setupUI
 	],
 	start
 );
@@ -46,7 +47,7 @@ async.parallel(
 function loadModels(done)
 {
 	async.map(
-		['2M6C.pdb' /*, '2VAA.pdb'*/],
+		['2M6C.pdb' , '2VAA.pdb'],
 
 		function(item, done)
 		{
@@ -55,8 +56,7 @@ function loadModels(done)
 			loader.load('models/'+item, function(model)
 			{
 				var radius = computeObjectRadius(model);
-				model.scale.multiplyScalar(1.5/radius);
-				console.log(radius);
+				model.scale.multiplyScalar(1.0/radius);
 
 				done(null, model);
 			});
@@ -97,7 +97,6 @@ function setupRenderer(done)
 	done();
 }
 
-
 function setupEnclosure(done)
 {
 	if(altspace.inClient)
@@ -114,6 +113,11 @@ function setupEnclosure(done)
 	}
 }
 
+function setupUI(done)
+{
+	done();
+}
+
 function start(err, results)
 {
 	if(err){
@@ -122,8 +126,9 @@ function start(err, results)
 	}
 	console.log(results);
 
-	window.molecule = results[0][0];
-	molecule.position.set(0,0,1.5);
+	window.molecule = results[0][1];
+	molecule.position.set(0,0,1.0);
+	molecule.rotation.set(Math.PI/2, Math.PI/2, 0);
 	root.add(molecule);
 
 
