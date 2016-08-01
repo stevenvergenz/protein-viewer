@@ -39,6 +39,7 @@ async.parallel(
 		loadModels,
 		setupRenderer,
 		setupEnclosure,
+		setupSync,
 		setupUI
 	],
 	start
@@ -116,6 +117,29 @@ function setupEnclosure(done)
 			root.scale.multiplyScalar(e.pixelsPerMeter);
 			root.rotation.set( -Math.PI/2, 0, 0 );
 			done(e.innerDepth===1);
+		});
+	}
+	else {
+		done();
+	}
+}
+
+function setupSync(done)
+{
+	if(altspace.inClient)
+	{
+		altspace.utilities.sync.connect({
+			authorId: 'Derogatory',
+			appId: 'protein-viewer'
+		}).then(function(conn)
+		{
+			sync = conn;
+			done();
+		},
+		function(err)
+		{
+			console.warn('Could not connect to firebase:', err);
+			done();
 		});
 	}
 	else {
