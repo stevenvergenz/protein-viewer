@@ -246,6 +246,7 @@
 							var start = mesh.position, end = v2;
 							stick.position.copy( start );
 							stick.position.lerp( end, 0.5 );
+							stick.color(0xff0000);
 							stick.scale.setZ( start.distanceTo( end ) );
 							stick.lookAt( end );
 
