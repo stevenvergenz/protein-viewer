@@ -167,7 +167,7 @@
 		{
 			// define default options
 			options = options || {};
-			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : false;
+			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : true;
 			options.meshVertexLimit = options.meshVertexLimit || 65000;
 			options.bondFudgeFactor = options.bondFudgeFactor || 0.14;
 			options.verbose = options.verbose !== undefined ? options.verbose : true;
