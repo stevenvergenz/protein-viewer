@@ -246,7 +246,7 @@
 							var start = mesh.position, end = v2;
 							stick.position.copy( start );
 							stick.position.lerp( end, 0.5 );
-							stick.material.color.set(0x00ff00);
+							if(atom.chainID="P") stick.material.color.set(0x0000ff);
 							stick.scale.setZ( start.distanceTo( end ) );
 							stick.lookAt( end );
 
