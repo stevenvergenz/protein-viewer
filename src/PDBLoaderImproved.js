@@ -173,7 +173,7 @@
 				// compute offset
 				var offset = max.clone().add(min).multiplyScalar(0.5);
 
-				var stick = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 1), new THREE.MeshBasicMaterial({color: 0xffffff}));
+				var stick = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 1), new THREE.MeshBasicMaterial({color: 0xff0000}));
 				var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
 				bonds.name = 'bonds';
 				if(options.mergeLikeAtoms)
