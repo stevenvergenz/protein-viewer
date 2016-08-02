@@ -246,7 +246,7 @@
 							var start = mesh.position, end = v2;
 							stick.position.copy( start );
 							stick.position.lerp( end, 0.5 );
-							stick.material=THREE.MeshBasicMaterial({color: 0xff0000}));
+							stick.color.set({color: 0xff0000});
 							stick.scale.setZ( start.distanceTo( end ) );
 							stick.lookAt( end );
 
