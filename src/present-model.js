@@ -36,44 +36,47 @@ function computeObjectRadius(o, center)
 // start loading everything in the right order
 async.parallel(
 	[
-		loadModels,
+		loadModel,
 		setupRenderer,
-		setupEnclosure,
-		setupSync,
-		setupUI
+		setupEnclosure
+		//setupSync,
+		//setupUI
 	],
 	start
 );
 
-function loadModels(done)
+function loadModel(done)
 {
 	var defaultTransform = {
 		'2VAA': new THREE.Matrix4().fromArray([5.0921660370876786e-18, 0.022933077067136765, -5.0921660370876786e-18, 0, 0, 5.0921660370876786e-18, 0.022933077067136765, 0, 0.022933077067136765, -5.0921660370876786e-18, 0, 0, 0, 0, 1, 1]),
-		'2M6C': new THREE.Matrix4().fromArray([0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 1.5, 1])
+		'2M6C': new THREE.Matrix4().fromArray([0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 1.2, 1])
 	};
 
-	async.map(
-		['2M6C' , '2VAA'],
+	var molId = /[?&]molecule=(\w+)/.exec(window.location.search);
+	if(!molId)
+		return done();
+	else
+		molId = molId[1];
 
-		function(item, done)
+	var molecule = new THREE.Object3D();
+	var loader = new THREE.PDBLoader();
+	loader.load('models/'+molId+'.pdb', function(model)
+	{
+		if(defaultTransform[molId])
+			model.applyMatrix( defaultTransform[molId] );
+		else
 		{
-			var molecule = new THREE.Object3D();
-			var loader = new THREE.PDBLoader();
-			loader.load('models/'+item+'.pdb', function(model)
-			{
-				if(defaultTransform[item])
-					model.applyMatrix( defaultTransform[item] );
-				else
-				{
-					var radius = computeObjectRadius(model);
-					model.scale.multiplyScalar(1.0/radius);
-				}
+			var radius = computeObjectRadius(model);
+			model.scale.multiplyScalar(1.0/radius);
+			model.position.set(0, 0, 1.2);
+		}
 
-				done(null, model);
-			});
-		},
-		done
-	);
+		done(null, model);
+	},
+	null,
+	function(err){
+		done(err);
+	});
 }
 
 
@@ -124,7 +127,7 @@ function setupEnclosure(done)
 	}
 }
 
-function setupSync(done)
+/*function setupSync(done)
 {
 	if(altspace.inClient)
 	{
@@ -150,7 +153,7 @@ function setupSync(done)
 function setupUI(done)
 {
 	done();
-}
+}*/
 
 function start(err, results)
 {
@@ -160,9 +163,10 @@ function start(err, results)
 	}
 	console.log(results);
 
-	window.molecule = results[0][1];
-	root.add(molecule);
-
+	if(results[0]){
+		window.molecule = results[0];
+		root.add(molecule);
+	}
 
 	// start animating
 	window.requestAnimationFrame(function animate(timestamp)

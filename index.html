@@ -5,8 +5,31 @@
 		<script src="lib/altspace-0.16.0.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/async/1.5.2/async.min.js"></script>
 		<script src="src/PDBLoaderImproved.js"></script>
+
+		<style>
+			.bar {
+			}
+
+			.item {
+				display: inline-block;
+				width: 49%;
+				padding: 5px 0;
+
+				text-align: center;
+				font-size: 24px;
+				font-weight: bold;
+
+				background-color: black;
+				color: white;
+				text-decoration: none;
+			}
+		</style>
 	</head>
 	<body>
+		<p class='bar'>
+			<a href='?molecule=2VAA' class='item'>2VAA</a>
+			<a href='?molecule=2M6C' class='item'>2M6C</a>
+		</p>
 		<script src="src/present-model.js"></script>
 	</body>
 </html>
