@@ -63,8 +63,10 @@ function loadModel(done)
 	var molId = /[?&]molecule=(\w+)/.exec(window.location.search);
 	if(!molId)
 		return done();
-	else
-		molId = molId[1];
+
+	molId = molId[1];
+	document.getElementById(molId).style.color = '#87ceeb';
+
 
 	var molecule = new THREE.Object3D();
 	var loader = new THREE.PDBLoader();
