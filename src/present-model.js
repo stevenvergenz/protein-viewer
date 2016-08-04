@@ -6,6 +6,13 @@ var scene = new THREE.Scene();
 var root = new THREE.Object3D();
 scene.add(root);
 
+// start animating
+window.requestAnimationFrame(function animate(timestamp)
+{
+	window.requestAnimationFrame(animate);
+	scene.updateAllBehaviors();
+	renderer.render(scene, camera);
+});
 
 function computeObjectRadius(o, center)
 {
@@ -45,6 +52,7 @@ async.parallel(
 	start
 );
 
+var progressDisc = null;
 function loadModel(done)
 {
 	var defaultTransform = {
@@ -69,11 +77,28 @@ function loadModel(done)
 			var radius = computeObjectRadius(model);
 			model.scale.multiplyScalar(1.0/radius);
 			model.position.set(0, 0, 1.2);
+			model.rotation.set(0, 0, Math.PI/2);
 		}
 
+		root.remove(progressDisc);
+		progressDisc = null;
 		done(null, model);
 	},
+
+	/*function(percentDone)
+	{
+		var progress = new THREE.Mesh(
+			new THREE.CylinderGeometry(0.5, 0.5, .06, 1, 1, false, 0, 2*Math.PI*percentDone),
+			new THREE.MeshBasicMaterial({color: 0x87ceeb})
+		);
+		progress.position.set(0, 0, 1.5);
+		root.add(progress);
+		root.remove(progressDisc);
+		progressDisc = progress;
+		console.log('progress', progress);
+	},*/
 	null,
+
 	function(err){
 		done(err);
 	});
@@ -107,6 +132,7 @@ function setupRenderer(done)
 		box.position.set(0,0,1.5);
 		root.add(box);*/
 	}
+
 
 	done();
 }
@@ -168,12 +194,5 @@ function start(err, results)
 		root.add(molecule);
 	}
 
-	// start animating
-	window.requestAnimationFrame(function animate(timestamp)
-	{
-		window.requestAnimationFrame(animate);
-		scene.updateAllBehaviors();
-		renderer.render(scene, camera);
-	});
 }
 

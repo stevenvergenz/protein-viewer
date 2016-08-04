@@ -7,6 +7,21 @@
 
 	var covalentRadius = {h:31, he:28, li:128, be:96, b:84, c:73, n:71, o:66, f:57, na:166, mg:141, al:121, si:111, p:107, s:105, cl:102, k:203, ca:176, sc:170, ti:160, v:153, cr:139, mn:139, fe:132, co:126, ni:124, cu:132, zn:122, ga:122, ge:120, as:119, se:120, br:120};
 
+	function throttle(callback, timeout)
+	{
+		timeout = timeout || 20;
+		var wait = false;
+		return function(){
+			if(!wait){
+				callback.apply(undefined, arguments);
+				wait = true;
+				setTimeout(function(){
+					wait = false;
+				}, timeout);
+			}
+		};
+	}
+
 	THREE.PDBLoader = function ( manager ) {
 		this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
 	};
@@ -19,18 +34,28 @@
 
 			var scope = this;
 
+			function parseProgress(percent){
+				return onProgress && onProgress(percent/2);
+			}
+
+			function generateProgress(percent){
+				return onProgress && onProgress(percent/2 + 0.5);
+			}
+
 			var loader = new THREE.XHRLoader( scope.manager );
 			loader.load( url, function (text)
 			{
-				var json = scope.parsePDB(text);
-				var models = scope.createStickBallModels(json);
+				var json = scope.parsePDB(text, parseProgress);
+				parseProgress(1);
+				var models = scope.createStickBallModels(json, null, generateProgress);
+				generateProgress(1);
 				onLoad(models, json);
-			}, onProgress, onError );
+			}, undefined, onError );
 
 		},
 
 
-		parsePDB: function(text)
+		parsePDB: function(text, onProgress)
 		{
 			function parseChainInfo(line)
 			{
@@ -56,11 +81,6 @@
 				var match = modelRE.exec(lines[0]);
 				if(match)
 					var modelNum = parseInt(match[1]);
-				else
-					return null;
-
-				if(!endmdlRE.test(lines[lines.length-1]))
-					return null;
 
 				// load atom list
 				var atoms = [];
@@ -68,6 +88,7 @@
 				{
 					var atom = parseAtom(lines[i]);
 					if(atom) atoms.push(atom);
+					onProgress(i/lines.length);
 				}
 
 				return {
@@ -131,8 +152,6 @@
 			
 			var cursor = 0;
 			var data = {};
-			
-			
 
 			// check for MODELs
 			var start = lines.slice(cursor).findIndex(function(e,i){ return /^MODEL/.test(e); });
@@ -141,14 +160,10 @@
 				data.model = parseModel( lines.slice(cursor+start, cursor+end+1) );
 				cursor += end+1;
 			}
-
 			// load all atoms into one model if no MODEL/ENDMDL tags
-			if(!data.model)
+			else
 			{
-				var defaultModel = lines
-					.map(function(e){ return parseAtom(e); })
-					.filter(function(e){ return !!e; });
-				data.model = {atoms: defaultModel};
+				data.model = parseModel( lines );
 			}
 
 			// load manual connections
@@ -163,7 +178,7 @@
 			return data;
 		},
 
-		createStickBallModels: function(json, options)
+		createStickBallModels: function(json, options, onProgress)
 		{
 			// define default options
 			options = options || {};
@@ -203,6 +218,7 @@
 				/*
 				* Generate atom balls
 				*/
+				onProgress(i/molecule.atoms.length);
 
 				var e = atom.element.toLowerCase();
 
@@ -284,6 +300,7 @@
 							model.add( stick.clone() );
 					}
 				}
+
 			});
 
 			// generate manual bonds
