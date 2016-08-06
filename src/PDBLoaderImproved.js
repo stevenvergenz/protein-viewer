@@ -71,7 +71,7 @@
 				}
 				else return null;
 			}
-			
+
 			function parseModel(lines)
 			{
 				var modelRE = /^MODEL     (.{4})/;
@@ -145,11 +145,11 @@
 				else
 					return null;
 			}
-		
+
 			var lines = text.split('\r\n');
 			if(lines.length === 1)
 				lines = text.split('\n');
-			
+
 			var cursor = 0;
 			var data = {};
 
@@ -188,7 +188,7 @@
 			options.verbose = options.verbose !== undefined ? options.verbose : true;
 
 			var molecule = json.model;
-			
+
 			var model = new THREE.Object3D();
 			var atomMap = {};
 			var bondMap = {};
@@ -265,7 +265,7 @@
 					var neighbor = molecule.atoms[j];
 					if(neighbor.chainId !== atom.chainId)
 						continue;
-					
+
 					var v2 = new THREE.Vector3(neighbor.x, neighbor.y, neighbor.z).sub(offset);
 
 					// get distance between atoms, compared to covalent radii
@@ -311,7 +311,7 @@
 					// make sure a < b
 					var a = Math.min(bond.atomIndex, bond['bond'+i]) - 1,
 						b = Math.max(bond.atomIndex, bond['bond'+i]) - 1;
-					
+
 					var aa = molecule.atoms[a], ab = molecule.atoms[b];
 					var va = new THREE.Vector3(aa.x, aa.y, aa.z).sub(offset);
 					var vb = new THREE.Vector3(ab.x, ab.y, ab.z).sub(offset);
@@ -358,7 +358,7 @@
 				molecule.atoms.forEach(function(a,i){
 					bondCount[i] = 0;
 				});
-				
+
 				for(var i in bondMap)
 				{
 					bondCount[i] += bondMap[i].length;
@@ -366,13 +366,13 @@
 						bondCount[ bondMap[i][j] ] += 1;
 					}
 				}
-				
+
 				console.log('Most bonded atom has:',
 					Object.keys(bondCount).reduce(function(sum,ai){
 						return Math.max(sum, bondCount[ai]);
 					}, 0)
 				);
-				
+
 				for(var i in bondCount)
 				{
 					if(bondCount[i] === 0 && molecule.atoms[i].type !== 'HETATM'){

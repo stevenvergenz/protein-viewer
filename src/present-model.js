@@ -36,7 +36,7 @@ function computeObjectRadius(o, center)
 			if(test > max) max = test;
 		});
 	}
-	
+
 	return max;
 }
 
@@ -57,7 +57,8 @@ function loadModel(done)
 {
 	var defaultTransform = {
 		'2VAA': new THREE.Matrix4().fromArray([5.0921660370876786e-18, 0.022933077067136765, -5.0921660370876786e-18, 0, 0, 5.0921660370876786e-18, 0.022933077067136765, 0, 0.022933077067136765, -5.0921660370876786e-18, 0, 0, 0, 0, 1, 1]),
-		'2M6C': new THREE.Matrix4().fromArray([0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 1.2, 1])
+		//'2M6C': new THREE.Matrix4().fromArray([0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 1.2, 1])
+		'2M6C': new THREE.Matrix4().fromArray([-0.09831853955984116, 1.2040150655926865e-17, -4.816060262370746e-17, 0, -4.816060262370746e-17, -4.366220254674198e-17, 0.09831853955984116, 0, 1.2040150655926865e-17, 0.09831853955984116, 4.366220254674198e-17, 0, 0, 0, 1.2000000476837158, 1])
 	};
 
 	var molId = /[?&]molecule=(\w+)/.exec(window.location.search);
@@ -69,41 +70,53 @@ function loadModel(done)
 
 
 	var molecule = new THREE.Object3D();
-	var loader = new THREE.PDBLoader();
-	loader.load('models/'+molId+'.pdb', function(model)
-	{
-		if(defaultTransform[molId])
-			model.applyMatrix( defaultTransform[molId] );
-		else
+
+	async.parallel([
+
+		// load pdb file
+		function(done)
 		{
-			var radius = computeObjectRadius(model);
-			model.scale.multiplyScalar(1.0/radius);
-			model.position.set(0, 0, 1.2);
-			model.rotation.set(0, 0, Math.PI/2);
+			var loader = new THREE.PDBLoader();
+			loader.load('models/pdb/'+molId+'.pdb', function(model)
+			{
+				if(defaultTransform[molId])
+					model.applyMatrix( defaultTransform[molId] );
+				else
+				{
+					var radius = computeObjectRadius(model);
+					model.scale.multiplyScalar(1.0/radius);
+					model.position.set(0, 0, 1.2);
+					model.rotation.set(0, 0, Math.PI/2);
+				}
+
+				root.remove(progressDisc);
+				progressDisc = null;
+				done(null, model);
+			}, null, done);
+		},
+
+		// load ribbon file
+		function(done)
+		{
+			var loader = new THREE.glTFLoader();
+			loader.load('models/ribbon/'+molId+'.gltf', function(model)
+			{
+				var ribbon = model.scene.children[0].children[0].children[0];
+				//ribbon.material = new THREE.MeshBasicMaterial({map: molId+'.png'})
+				done(null, ribbon);
+			}, null, done);
+		}],
+
+		function(err, results){
+			if(err)
+				done(err);
+			else {
+				window.ribbon = results[1];
+				results[0].add(results[1]);
+				done(null, results[0]);
+			}
 		}
-
-		root.remove(progressDisc);
-		progressDisc = null;
-		done(null, model);
-	},
-
-	/*function(percentDone)
-	{
-		var progress = new THREE.Mesh(
-			new THREE.CylinderGeometry(0.5, 0.5, .06, 1, 1, false, 0, 2*Math.PI*percentDone),
-			new THREE.MeshBasicMaterial({color: 0x87ceeb})
-		);
-		progress.position.set(0, 0, 1.5);
-		root.add(progress);
-		root.remove(progressDisc);
-		progressDisc = progress;
-		console.log('progress', progress);
-	},*/
-	null,
-
-	function(err){
-		done(err);
-	});
+	);
 }
 
 
