@@ -95,7 +95,7 @@
 	"extensionsUsed": ["KHR_materials_common"],
 	"images": {
 		"2M6C_png": {
-			"uri": "2M6C.png"
+			"uri": "textures/2M6C.png"
 		}
 	},
     "materials": {
@@ -192,8 +192,8 @@
     "techniques": {},
 	"textures": {
 		"2M6C_tex": {
-			"format": 6407,
-			"internalFormat": 35911,
+			"format": 6403,
+			"internalFormat": 33317,
 			"target": 3553,
 			"sampler": "sampler_0",
 			"type": 5121,
