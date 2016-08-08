@@ -102,7 +102,7 @@ function loadModel(done)
 			loader.load('models/ribbon/'+molId+'.gltf', function(model)
 			{
 				var ribbon = model.scene.children[0].children[0].children[0];
-				//ribbon.material = new THREE.MeshBasicMaterial({map: molId+'.png'})
+				//ribbon.material.color.set(0xffff00);
 				done(null, ribbon);
 			}, null, done);
 		}],
