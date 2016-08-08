@@ -52,7 +52,6 @@ async.parallel(
 	start
 );
 
-var progressDisc = null;
 function loadModel(done)
 {
 	var defaultTransform = {
@@ -76,9 +75,40 @@ function loadModel(done)
 		// load pdb file
 		function(done)
 		{
+			if( /[?&]noball/.test(window.location.search) )
+				return done();
+
 			var loader = new THREE.PDBLoader();
 			loader.load('models/pdb/'+molId+'.pdb', function(model)
 			{
+				done(null, model);
+			}, null, done);
+		},
+
+		// load ribbon file
+		function(done)
+		{
+			if( /[?&]noribbon/.test(window.location.search) )
+				return done();
+
+			var loader = new THREE.glTFLoader();
+			loader.load('models/ribbon/'+molId+'.gltf', function(model)
+			{
+				var ribbon = model.scene.children[0].children[0].children[0];
+				//ribbon.material.color.set(0xffff00);
+				done(null, ribbon);
+			}, null, done);
+		}],
+
+		function(err, results)
+		{
+			if(err)
+				done(err);
+			else {
+				var model = new THREE.Object3D();
+				if(results[0]) model.add(results[0]);
+				if(results[1]) model.add(results[1]);
+
 				if(defaultTransform[molId])
 					model.applyMatrix( defaultTransform[molId] );
 				else
@@ -89,31 +119,7 @@ function loadModel(done)
 					model.rotation.set(0, 0, Math.PI/2);
 				}
 
-				root.remove(progressDisc);
-				progressDisc = null;
 				done(null, model);
-			}, null, done);
-		},
-
-		// load ribbon file
-		function(done)
-		{
-			var loader = new THREE.glTFLoader();
-			loader.load('models/ribbon/'+molId+'.gltf', function(model)
-			{
-				var ribbon = model.scene.children[0].children[0].children[0];
-				//ribbon.material.color.set(0xffff00);
-				done(null, ribbon);
-			}, null, done);
-		}],
-
-		function(err, results){
-			if(err)
-				done(err);
-			else {
-				window.ribbon = results[1];
-				results[0].add(results[1]);
-				done(null, results[0]);
 			}
 		}
 	);
