@@ -262,8 +262,11 @@
 				// look ahead for any atoms that are nearby
 				for(var j=i+1; j<molecule.atoms.length; j++)
 				{
+					// don't bond to other chains
 					var neighbor = molecule.atoms[j];
-					if(neighbor.chainId !== atom.chainId)
+					if(neighbor.chainId !== atom.chainId
+						|| Math.abs(neighbor.seqRes - atom.seqRes) > 1
+					)
 						continue;
 
 					var v2 = new THREE.Vector3(neighbor.x, neighbor.y, neighbor.z).sub(offset);
