@@ -65,7 +65,9 @@ function loadModel(done)
 		return done();
 
 	molId = molId[1];
-	document.getElementById(molId).style.color = '#87ceeb';
+
+	var menuItem = document.getElementById(molId);
+	if(menuItem) menuItem.style.color = '#87ceeb';
 
 
 	var molecule = new THREE.Object3D();
@@ -97,7 +99,7 @@ function loadModel(done)
 				var ribbon = model.scene.children[0].children[0].children[0];
 				//ribbon.material.color.set(0xffff00);
 				done(null, ribbon);
-			}, null, done);
+			});
 		}],
 
 		function(err, results)

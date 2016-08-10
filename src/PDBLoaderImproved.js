@@ -47,9 +47,9 @@
 			{
 				var json = scope.parsePDB(text, parseProgress);
 				parseProgress(1);
-				var models = scope.createStickBallModels(json, null, generateProgress);
+				var model = scope.createStickBallModels(json, null, generateProgress);
 				generateProgress(1);
-				onLoad(models, json);
+				onLoad(model, json);
 			}, undefined, onError );
 
 		},
@@ -184,10 +184,16 @@
 			options = options || {};
 			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : true;
 			options.meshVertexLimit = options.meshVertexLimit || 65000;
-			options.bondFudgeFactor = options.bondFudgeFactor || 0.14;
+			options.bondFudgeFactor = options.bondFudgeFactor || 0.16;
 			options.verbose = options.verbose !== undefined ? options.verbose : true;
+			options.atomCutoff = options.atomCutoff || 4000;
 
 			var molecule = json.model;
+
+			if(molecule.atoms.length > options.atomCutoff){
+				console.error(molecule.atoms.length+' atoms is too large to render, aborting.');
+				return;
+			}
 
 			var model = new THREE.Object3D();
 			var atomMap = {};
