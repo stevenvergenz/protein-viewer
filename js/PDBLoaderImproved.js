@@ -1,5 +1,15 @@
 'use strict';
 
+if(self.importScripts)
+	self.importScripts('../lib/three.r74.min.js');
+
+try {
+	window.THREE = window.THREE || {};
+}
+catch(e){
+	var window = {THREE: self.THREE};
+}
+
 (function(THREE)
 {
 	// atomic colors
@@ -42,16 +52,29 @@
 				return onProgress && onProgress(percent/2 + 0.5);
 			}
 
-			var loader = new THREE.XHRLoader( scope.manager );
-			loader.load( url, function (text)
+			if(window.Worker)
 			{
-				var json = scope.parsePDB(text, parseProgress);
-				parseProgress(1);
-				var model = scope.createStickBallModels(json, null, generateProgress);
-				generateProgress(1);
-				onLoad(model, json);
-			}, undefined, onError );
-
+				var worker = new Worker('js/PDBLoaderImproved.js');
+				worker.postMessage('../'+url);
+				worker.onmessage = function(msg)
+				{
+					var model = deserialize(msg.data);
+					onLoad(model, model.userData);
+					worker.terminate();
+				};
+			}
+			else
+			{
+				var loader = new THREE.XHRLoader( scope.manager );
+				loader.load( url, function (text)
+				{
+					var json = scope.parsePDB(text, parseProgress);
+					parseProgress(1);
+					var model = scope.createStickBallModels(json, null, generateProgress);
+					generateProgress(1);
+					onLoad(model, json);
+				}, undefined, onError );
+			}
 		},
 
 
@@ -411,17 +434,36 @@
 		Web worker stuff
 	***************************/
 
+	function serialize(obj3d)
+	{
+		var library = {
+			materials: {},
+			meshes: {},
+			objects: {}
+		};
+
+		var buffers = [];
+
+
+		return [library, buffers];
+	}
+
+	function deserialize(json)
+	{
+		return new THREE.Object3D();
+	}
+
 	function handleWorkerMessage(evt)
 	{
 		var loader = new THREE.PDBLoader();
 		loader.load(evt.data, function(model)
 		{
-			
+			var serial = serialize(model);
+			var json = serial[0];
+			var buffers = serial[1];
+			postMessage(json, buffers);
 		});
 	}
-
-	if(window.importScripts)
-		window.importScripts('lib/three.js');
 
 	try {
 		onmessage = handleWorkerMessage;
@@ -432,5 +474,5 @@
 	}
 
 
-})(window.THREE = window.THREE || {});
+})(window.THREE);
 
