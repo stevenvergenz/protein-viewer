@@ -83,7 +83,6 @@ function loadModel(done)
 			var loader = new THREE.PDBLoader();
 			loader.load('models/pdb/'+molId+'.pdb', function(model)
 			{
-				console.log('model loaded');
 				done(null, model);
 			}, null, done);
 		},
