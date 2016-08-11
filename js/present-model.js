@@ -83,6 +83,7 @@ function loadModel(done)
 			var loader = new THREE.PDBLoader();
 			loader.load('models/pdb/'+molId+'.pdb', function(model)
 			{
+				console.log('model loaded');
 				done(null, model);
 			}, null, done);
 		},
@@ -123,6 +124,8 @@ function loadModel(done)
 
 				done(null, model);
 			}
+
+			document.getElementById('loading').style.display = 'none';
 		}
 	);
 }
@@ -136,7 +139,7 @@ function setupRenderer(done)
 	else {
 		// set up preview renderer, in case we're out of world
 		renderer = new THREE.WebGLRenderer();
-		renderer.setSize(720, 720);
+		renderer.setSize(1024, 1024);
 		renderer.setClearColor( 0 );
 		document.body.appendChild(renderer.domElement);
 

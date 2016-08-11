@@ -23,6 +23,16 @@
 				color: white;
 				text-decoration: none;
 			}
+
+			h1 {
+				color: white;
+			}
+
+			canvas {
+				position: absolute;
+				top: 0; left: 0;
+				z-index: -1;
+			}
 		</style>
 	</head>
 	<body>
@@ -34,7 +44,7 @@
 			<a href='?molecule=1AQD&noribbon' class='item' id='1AQD'>1AQD</a>
 			<a href='?molecule=1J8H&noribbon' class='item' id='1J8H'>1J8H</a>
 		</p>
-		<div style='text-align: center;'>
+		<div style='text-align: center;' id='loading'>
 			<img src='img/benzene.gif' alt='Loading'/>
 			<h1>Loading...</h1>
 		</div>

@@ -309,7 +309,6 @@
 							model.add( stick.clone() );
 					}
 				}
-
 			});
 
 			// generate manual bonds
