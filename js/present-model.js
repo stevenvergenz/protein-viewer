@@ -63,8 +63,10 @@ function loadModel(done)
 	};
 
 	var molId = /[?&]molecule=(\w+)/.exec(window.location.search);
-	if(!molId)
+	if(!molId){
+		document.getElementById('loading').style.display = 'none';
 		return done();
+	}
 
 	molId = molId[1];
 

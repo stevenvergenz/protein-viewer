@@ -437,19 +437,108 @@ catch(e){
 	function serialize(obj3d)
 	{
 		var library = {
+			geometry: {},
 			materials: {},
 			meshes: {},
 			objects: {}
 		};
 
-		var buffers = [];
+		// compute the total size of the geometry data
+		var totalBufferLength = 0;
+		obj3d.traverse(function(o){
+			if(o instanceof THREE.Mesh){
+				var geometry = o.geometry;
+				for(var i in geometry.attributes){
+					totalBufferLength += geometry.attributes[i].array.buffer.byteLength;
+				}
+			}
+		});
+		console.log(totalBufferLength+' bytes of buffer data');
+
+		// create the one buffer to rule them all
+		var buffer = new ArrayBuffer(totalBufferLength);
+		library.buffer = buffer;
+		var offset = 0;
+
+		obj3d.traverse(function(o)
+		{
+			var obj = {
+				name: o.name,
+				transform: o.matrix.toArray(),
+				children: [],
+				mesh: null,
+				userData: o.userData
+			};
+
+			// add object to library
+			library.objects[o.id] = obj;
+
+			// add to parent 
+			if(o.parent && library.objects[o.parent.id])
+				library.objects[o.parent.id].children.push(o.id);
+
+			// serialize all the mesh data
+			if(o instanceof THREE.Mesh)
+			{
+				var mesh = {
+					geometry: o.geometry.id,
+					material: o.material.id
+				};
+
+				// add mesh references
+				library.meshes[o.id] = mesh;
+				obj.mesh = o.id;
+
+				// serialize material
+				if(!library.materials[o.material.id])
+				{
+					library.materials[o.material.id] = {
+						color: o.material.color.getHex()
+					};
+				}
+
+				// serialize geometry
+				if(!library.geometry[o.geometry.id])
+				{
+					var geo = {};
+					library.geometry[o.geometry.id] = geo;
+
+					Object.keys(o.geometry.attributes).forEach(function(key)
+					{
+						var attr = o.geometry.attributes[key];
+						geo[key] = {
+							stride: attr.itemSize,
+							start: offset,
+							length: attr.count
+						};
+
+						// detect type of buffer
+						var type;
+						if( attr.array instanceof Float32Array ){
+							geo[key].type = 'Float32';
+							type = Float32Array;
+						}
+						else if( attr.array instanceof Uint8Array ){
+							geo[key].type = 'Uint8';
+							type = Uint8Array;
+						}
+						
+						// copy buffer to grand buffer
+						var dest = new type(buffer, offset);
+						dest.set(attr.array);
+						offset += attr.array.buffer.byteLength;
+					});
+				}
+			}
+		});
 
 
-		return [library, buffers];
+		return [library, [buffer]];
 	}
 
 	function deserialize(json)
 	{
+		console.log(json);
 		return new THREE.Object3D();
 	}
 
