@@ -182,7 +182,7 @@
 		{
 			// define default options
 			options = options || {};
-			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : true;
+			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : false;
 			options.meshVertexLimit = options.meshVertexLimit || 65000;
 			options.bondFudgeFactor = options.bondFudgeFactor || 0.16;
 			options.verbose = options.verbose !== undefined ? options.verbose : true;
@@ -212,6 +212,8 @@
 
 			var stick = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true), new THREE.MeshBasicMaterial({color: 0xffffff}));
 			stick.geometry.rotateX(Math.PI/2);
+			var ballGeometry = new THREE.BoxGeometry(0.2,0.2,0.2);
+			
 			var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
 			bonds.name = 'bonds';
 			if(options.mergeLikeAtoms)
@@ -237,9 +239,7 @@
 						model.add(atomMap[e]);
 				}
 
-				// lookup table is in picometers (1e-12), so convert to angstroms (1e-10)
-				var radius = 0.15*(covalentRadius[e]*0.01 || 1.25);
-				var mesh = new THREE.Mesh(new THREE.BoxGeometry(2*radius, 2*radius, 2*radius), atomMap[e].material);
+				var mesh = new THREE.Mesh(ballGeometry, atomMap[e].material);
 				mesh.name = 'atom_'+atom.serial;
 
 				// position in angstroms
