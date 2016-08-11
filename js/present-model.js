@@ -21,11 +21,13 @@ function computeObjectRadius(o, center)
 
 	if(o instanceof THREE.Mesh)
 	{
-		o.geometry.vertices.forEach(function(vert)
+		var vertexList = o.geometry.getAttribute('position');
+		for(var i=0; i<vertexList.count; i++)
 		{
+			var vert = new THREE.Vector3().fromArray( vertexList.array.slice(3*i, 3*i+3) );
 			var test = vert.distanceTo(center);
 			if(test > max) max = test;
-		});
+		}
 	}
 	else
 	{

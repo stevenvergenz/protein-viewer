@@ -195,7 +195,7 @@
 				return;
 			}
 
-			var model = new THREE.Object3D();
+			var outputMeshes = [];
 			var atomMap = {};
 			var bondMap = {};
 
@@ -217,7 +217,7 @@
 			var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
 			bonds.name = 'bonds';
 			if(options.mergeLikeAtoms)
-				model.add(bonds);
+				outputMeshes.push(bonds);
 
 
 			// loop over all atoms in the molecule
@@ -236,7 +236,7 @@
 					atomMap[e] = new THREE.Mesh(new THREE.Geometry(), new THREE.MeshBasicMaterial({color: CPK[e]}));
 					atomMap[e].name = e+'_group';
 					if(options.mergeLikeAtoms)
-						model.add(atomMap[e]);
+						outputMeshes.push(atomMap[e]);
 				}
 
 				var mesh = new THREE.Mesh(ballGeometry, atomMap[e].material);
@@ -252,13 +252,13 @@
 					if(atomMap[e].geometry.faces.length*3 + mesh.geometry.faces.length*3 > options.meshVertexLimit)
 					{
 						atomMap[e] = new THREE.Mesh(new THREE.Geometry(), atomMap[e].material);
-						model.add(atomMap[e]);
+						outputMeshes.push(atomMap[e]);
 					}
 
 					atomMap[e].geometry.mergeMesh(mesh);
 				}
 				else
-					model.add(mesh);
+					outputMeshes.push(mesh);
 
 
 				/*
@@ -300,13 +300,13 @@
 							if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
 							{
 								bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-								model.add(bonds);
+								outputMeshes.push(bonds);
 							}
 
 							bonds.geometry.mergeMesh(stick);
 						}
 						else
-							model.add( stick.clone() );
+							outputMeshes.push( stick.clone() );
 					}
 				}
 			});
@@ -341,13 +341,13 @@
 							if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
 							{
 								bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-								model.add(bonds);
+								outputMeshes.push(bonds);
 							}
 
 							bonds.geometry.mergeMesh(stick);
 						}
 						else
-							model.add( stick.clone() );
+							outputMeshes.push( stick.clone() );
 					}
 				}
 			});
@@ -355,7 +355,7 @@
 			if(options.verbose)
 			{
 				// check for empty geometry
-				model.traverse(function(o){
+				outputMeshes.forEach(function(o){
 					if(o.geometry && o.geometry.faces.length === 0){
 						console.log('No faces in mesh', o.name);
 					}
@@ -389,11 +389,48 @@
 				}
 			}
 
+			var model = new THREE.Object3D();
 			model.userData = json;
+
+			outputMeshes.forEach(function(mesh1)
+			{
+				model.add(
+					new THREE.Mesh(
+						new THREE.BufferGeometry().fromGeometry(mesh1.geometry),
+						mesh1.material
+					)
+				);
+			});
+
 
 			return model;
 		}
 	};
+
+	/***************************
+		Web worker stuff
+	***************************/
+
+	function handleWorkerMessage(evt)
+	{
+		var loader = new THREE.PDBLoader();
+		loader.load(evt.data, function(model)
+		{
+			
+		});
+	}
+
+	if(window.importScripts)
+		window.importScripts('lib/three.js');
+
+	try {
+		onmessage = handleWorkerMessage;
+	}
+	catch(e){
+		if(e !== 'onmessage is not defined')
+			throw e;
+	}
+
 
 })(window.THREE = window.THREE || {});
 
