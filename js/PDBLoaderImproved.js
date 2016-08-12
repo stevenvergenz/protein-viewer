@@ -1,8 +1,10 @@
 'use strict';
 
+// web workers need this imported especially
 if(self.importScripts)
 	self.importScripts('../lib/three.r74.min.js');
 
+// web workers don't have a window object
 try {
 	window.THREE = window.THREE || {};
 }
@@ -197,7 +199,6 @@ catch(e){
 
 			data.bonds = bonds;
 
-			console.log(data);
 			return data;
 		},
 
@@ -412,6 +413,8 @@ catch(e){
 				}
 			}
 
+			// convert finished model into buffer geometry
+			// may as well, we're not changing it
 			var model = new THREE.Object3D();
 			model.userData = json;
 
@@ -430,9 +433,9 @@ catch(e){
 		}
 	};
 
-	/***************************
+	/********************************************
 		Web worker stuff
-	***************************/
+	********************************************/
 
 	function serialize(obj3d)
 	{
@@ -463,19 +466,16 @@ catch(e){
 		obj3d.traverse(function(o)
 		{
 			var obj = {
-				name: o.name,
 				transform: o.matrix.toArray(),
-				children: [],
+				children: o.children.map(function(o2){ return o2.id; }),
+				parent: o.parent ? o.parent.id : null,
 				mesh: null,
+				name: o.name,
 				userData: o.userData
 			};
 
 			// add object to library
 			library.objects[o.id] = obj;
-
-			// add to parent 
-			if(o.parent && library.objects[o.parent.id])
-				library.objects[o.parent.id].children.push(o.id);
 
 			// serialize all the mesh data
 			if(o instanceof THREE.Mesh)
@@ -508,8 +508,8 @@ catch(e){
 						var attr = o.geometry.attributes[key];
 						geo[key] = {
 							stride: attr.itemSize,
-							start: offset,
-							length: attr.count
+							offset: offset,
+							length: attr.array.length
 						};
 
 						// detect type of buffer
@@ -518,9 +518,37 @@ catch(e){
 							geo[key].type = 'Float32';
 							type = Float32Array;
 						}
+						else if( attr.array instanceof Float64Array ){
+							geo[key].type = 'Float64';
+							type = Float64Array;
+						}
 						else if( attr.array instanceof Uint8Array ){
 							geo[key].type = 'Uint8';
 							type = Uint8Array;
+						}
+						else if( attr.array instanceof Uint8ClampedArray ){
+							geo[key].type = 'Uint8Clamped';
+							type = Uint8ClampedArray;
+						}
+						else if( attr.array instanceof Int8Array ){
+							geo[key].type = 'Int8';
+							type = Int8Array;
+						}
+						else if( attr.array instanceof Uint16Array ){
+							geo[key].type = 'Uint16';
+							type = Uint16Array;
+						}
+						else if( attr.array instanceof Int16Array ){
+							geo[key].type = 'Int16';
+							type = Int16Array;
+						}
+						else if( attr.array instanceof Uint32Array ){
+							geo[key].type = 'Uint32';
+							type = Uint32Array;
+						}
+						else if( attr.array instanceof Int32Array ){
+							geo[key].type = 'Int32';
+							type = Int32Array;
 						}
 						
 						// copy buffer to grand buffer
@@ -539,7 +567,75 @@ catch(e){
 	function deserialize(json)
 	{
 		console.log(json);
-		return new THREE.Object3D();
+
+		var results = {
+			objects: {},
+			materials: {},
+			geometry: {}
+		};
+
+		var root = null;
+
+		// recreate materials
+		for(var i in json.materials){
+			results.materials[i] = new THREE.MeshBasicMaterial({color: json.materials[i].color});
+		}
+
+		// recreate geometry
+		for(var i in json.geometry)
+		{
+			var geo = new THREE.BufferGeometry();
+
+			for(var j in json.geometry[i])
+			{
+				// rebuild buffer attribute
+				var attrRec = json.geometry[i][j];
+				var type = window[attrRec.type+'Array'];
+				var arr = new type(json.buffer, attrRec.offset, attrRec.length);
+				var attr = new THREE.BufferAttribute(arr, attrRec.stride);
+
+				geo.addAttribute(j, attr);
+			}
+
+			results.geometry[i] = geo;
+		}
+
+		// recreate object hierarchy
+		for(var i in json.objects)
+		{
+			var objRec = json.objects[i];
+
+			if( json.meshes[i] )
+			{
+				var meshRec = json.meshes[i];
+				var obj = new THREE.Mesh(results.geometry[meshRec.geometry], results.materials[meshRec.material]);
+			}
+			else
+				var obj = new THREE.Object3D();
+
+			// fill in user data
+			obj.name = objRec.name;
+			obj.userData = objRec.userData;
+
+			// fill in transform info
+			obj.matrix.fromArray(objRec.transform);
+			obj.matrix.decompose(obj.position, obj.quaternion, obj.scale);
+
+			// reconstruct hierarchy
+			if(results.objects[objRec.parent])
+				results.objects[objRec.parent].add(obj);
+			else
+				root = obj;
+
+			objRec.children.forEach(function(child){
+				if(results.objects[child])
+					obj.add( results.objects[child] );
+			});
+
+			results.objects[i] = obj;
+		}
+
+		return root;
 	}
 
 	function handleWorkerMessage(evt)
