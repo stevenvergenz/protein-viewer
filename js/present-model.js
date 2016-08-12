@@ -24,7 +24,7 @@ function computeObjectRadius(o, center)
 		var vertexList = o.geometry.getAttribute('position');
 		for(var i=0; i<vertexList.count; i++)
 		{
-			var vert = new THREE.Vector3().fromArray( vertexList.array.slice(3*i, 3*i+3) );
+			var vert = new THREE.Vector3().fromArray( Array.prototype.slice.call(vertexList.array, 3*i, 3*i+3) );
 			var test = vert.distanceTo(center);
 			if(test > max) max = test;
 		}
