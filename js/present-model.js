@@ -103,7 +103,7 @@ function loadModel(done)
 			var loader = new THREE.glTFLoader();
 			loader.load('models/ribbon/'+molId+'.gltf', function(model)
 			{
-				var ribbon = model.scene.children[0];
+				var ribbon = model.scene.children[0].children[0];
 				window.ribbon = ribbon;
 				ribbon.matrix.identity();
 				ribbon.matrix.decompose(ribbon.position, ribbon.quaternion, ribbon.scale);
