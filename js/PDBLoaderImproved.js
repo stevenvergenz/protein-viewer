@@ -236,16 +236,7 @@ catch(e){
 			var atomMap = {};
 			var bondMap = {};
 
-			// compute bounding box
 			var max = new THREE.Vector3(), min = new THREE.Vector3();
-			molecule.atoms.forEach(function(a){
-				var pos = new THREE.Vector3(a.x, a.y, a.z);
-				max.max(pos);
-				min.min(pos);
-			});
-
-			// compute offset
-			var offset = max.clone().add(min).multiplyScalar(0.5);
 
 			var stick = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true), new THREE.MeshBasicMaterial({color: 0xffffff}));
 			stick.geometry.rotateX(Math.PI/2);
@@ -278,8 +269,12 @@ catch(e){
 				mesh.name = 'atom_'+atom.serial;
 
 				// position in angstroms
-				mesh.position.set(atom.x, atom.y, atom.z).sub(offset);
+				mesh.position.set(atom.x, atom.y, atom.z);
 				mesh.updateMatrix();
+
+				// update bounds of molecule for later centering
+				max.max(mesh.position);
+				min.min(mesh.position);
 
 				// add to molecule
 				if(options.mergeLikeAtoms)
@@ -310,7 +305,7 @@ catch(e){
 					)
 						continue;
 
-					var v2 = new THREE.Vector3(neighbor.x, neighbor.y, neighbor.z).sub(offset);
+					var v2 = new THREE.Vector3(neighbor.x, neighbor.y, neighbor.z);
 
 					// get distance between atoms, compared to covalent radii
 					var dist = mesh.position.distanceTo(v2);
@@ -356,8 +351,8 @@ catch(e){
 						b = Math.max(bond.atomIndex, bond['bond'+i]) - 1;
 
 					var aa = molecule.atoms[a], ab = molecule.atoms[b];
-					var va = new THREE.Vector3(aa.x, aa.y, aa.z).sub(offset);
-					var vb = new THREE.Vector3(ab.x, ab.y, ab.z).sub(offset);
+					var va = new THREE.Vector3(aa.x, aa.y, aa.z);
+					var vb = new THREE.Vector3(ab.x, ab.y, ab.z);
 
 					if( !bondMap[a] || bondMap[a].indexOf(b) === -1 )
 					{
@@ -387,6 +382,14 @@ catch(e){
 				}
 			});
 
+			// calculate geometry offset
+			var offset = max.add(min).multiplyScalar(0.5).negate();
+			window.console.log(offset.toArray());
+			outputMeshes.forEach(function(m){
+				m.geometry.translate(offset.x, offset.y, offset.z);
+			});
+
+			// output debug and validation information
 			if(options.verbose)
 			{
 				// check for empty geometry
@@ -438,7 +441,6 @@ catch(e){
 					)
 				);
 			});
-
 
 			return model;
 		}
