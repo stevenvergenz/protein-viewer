@@ -127,6 +127,9 @@ function loadModel(done)
 			else {
 				var model = new THREE.Object3D();
 
+				if(results[0]) model.add(results[0]);
+				if(results[1]) model.add(results[1]);
+
 				if(defaultTransform[molId])
 					model.applyMatrix( defaultTransform[molId] );
 				else
@@ -136,9 +139,6 @@ function loadModel(done)
 					model.position.set(0, 0, 1.2);
 					model.rotation.set(0, 0, Math.PI/2);
 				}
-
-				if(results[0]) model.add(results[0]);
-				if(results[1]) model.add(results[1]);
 
 				done(null, model);
 			}
