@@ -9,8 +9,16 @@ try {
 	window.THREE = window.THREE || {};
 }
 catch(e){
-	var window = {THREE: self.THREE};
+	var window = {
+		THREE: self.THREE,
+		console: {
+			log: function(){
+				self.postMessage({type: 'log', message: Array.prototype.slice.call(arguments).join(' ')});
+			}
+		}
+	};
 }
+
 
 (function(THREE)
 {
@@ -46,23 +54,23 @@ catch(e){
 
 			var scope = this;
 
-			function parseProgress(percent){
-				return onProgress && onProgress(percent/2);
-			}
-
-			function generateProgress(percent){
-				return onProgress && onProgress(percent/2 + 0.5);
-			}
-
 			if(window.Worker)
 			{
+				window.console.log('spinning up worker');
 				var worker = new Worker('js/PDBLoaderImproved.js');
 				worker.postMessage('../'+url);
 				worker.onmessage = function(msg)
 				{
-					var model = deserialize(msg.data);
-					onLoad(model, model.userData);
-					worker.terminate();
+					var payload = msg.data;
+
+					if(payload.type === 'log')
+						window.console.log(payload.message);
+					else if(payload.type === 'model')
+					{
+						var model = deserialize(payload.data);
+						onLoad(model, model.userData);
+						worker.terminate();
+					}
 				};
 			}
 			else
@@ -70,17 +78,15 @@ catch(e){
 				var loader = new THREE.XHRLoader( scope.manager );
 				loader.load( url, function (text)
 				{
-					var json = scope.parsePDB(text, parseProgress);
-					parseProgress(1);
-					var model = scope.createStickBallModels(json, null, generateProgress);
-					generateProgress(1);
+					var json = scope.parsePDB(text);
+					var model = scope.createStickBallModels(json, null);
 					onLoad(model, json);
 				}, undefined, onError );
 			}
 		},
 
 
-		parsePDB: function(text, onProgress)
+		parsePDB: function(text)
 		{
 			function parseChainInfo(line)
 			{
@@ -113,7 +119,6 @@ catch(e){
 				{
 					var atom = parseAtom(lines[i]);
 					if(atom) atoms.push(atom);
-					onProgress(i/lines.length);
 				}
 
 				return {
@@ -179,9 +184,17 @@ catch(e){
 			var data = {};
 
 			// check for MODELs
-			var start = lines.slice(cursor).findIndex(function(e,i){ return /^MODEL/.test(e); });
-			var end   = lines.slice(cursor).findIndex(function(e,i){ return /^ENDMDL/.test(e); });
-			if( start !== -1 && end !== -1 ){
+			var start, end;
+			for(var i=cursor; i<lines.length; i++){
+				if(start !== undefined && /^ENDMDL/.test(lines[i])){
+					end = i;
+					break;
+				}
+				else if(/^MODEL/.test(lines[i]))
+					start = i;
+			}
+
+			if( start !== undefined && end !== undefined ){
 				data.model = parseModel( lines.slice(cursor+start, cursor+end+1) );
 				cursor += end+1;
 			}
@@ -202,7 +215,7 @@ catch(e){
 			return data;
 		},
 
-		createStickBallModels: function(json, options, onProgress)
+		createStickBallModels: function(json, options)
 		{
 			// define default options
 			options = options || {};
@@ -250,8 +263,6 @@ catch(e){
 				/*
 				* Generate atom balls
 				*/
-				onProgress(i/molecule.atoms.length);
-
 				var e = atom.element.toLowerCase();
 
 				// index materials and/or meshes
@@ -348,7 +359,7 @@ catch(e){
 					var va = new THREE.Vector3(aa.x, aa.y, aa.z).sub(offset);
 					var vb = new THREE.Vector3(ab.x, ab.y, ab.z).sub(offset);
 
-					if( !bondMap[a] || !bondMap[a].includes(b) )
+					if( !bondMap[a] || bondMap[a].indexOf(b) === -1 )
 					{
 						// add to bond map
 						bondMap[a] = bondMap[a] || [];
@@ -381,7 +392,7 @@ catch(e){
 				// check for empty geometry
 				outputMeshes.forEach(function(o){
 					if(o.geometry && o.geometry.faces.length === 0){
-						console.log('No faces in mesh', o.name);
+						window.console.log('No faces in mesh', o.name);
 					}
 				});
 
@@ -399,7 +410,7 @@ catch(e){
 					}
 				}
 
-				console.log('Most bonded atom has:',
+				window.console.log('Most bonded atom has:',
 					Object.keys(bondCount).reduce(function(sum,ai){
 						return Math.max(sum, bondCount[ai]);
 					}, 0)
@@ -408,7 +419,7 @@ catch(e){
 				for(var i in bondCount)
 				{
 					if(bondCount[i] === 0 && molecule.atoms[i].type !== 'HETATM'){
-						console.log(molecule.atoms[i], 'is unbonded!');
+						window.console.log(molecule.atoms[i], 'is unbonded!');
 					}
 				}
 			}
@@ -456,7 +467,7 @@ catch(e){
 				}
 			}
 		});
-		console.log(totalBufferLength+' bytes of buffer data');
+		window.console.log(totalBufferLength+' bytes of buffer data');
 
 		// create the one buffer to rule them all
 		var buffer = new ArrayBuffer(totalBufferLength);
@@ -566,7 +577,7 @@ catch(e){
 
 	function deserialize(json)
 	{
-		console.log(json);
+		window.console.log(json);
 
 		var results = {
 			objects: {},
@@ -646,7 +657,7 @@ catch(e){
 			var serial = serialize(model);
 			var json = serial[0];
 			var buffers = serial[1];
-			postMessage(json, buffers);
+			postMessage({type: 'model', data: json}, buffers);
 		});
 	}
 
@@ -654,10 +665,10 @@ catch(e){
 		onmessage = handleWorkerMessage;
 	}
 	catch(e){
-		if(e !== 'onmessage is not defined')
+		if( !/onmessage is not defined$/.test(e.toString()) )
 			throw e;
 	}
-
+	
 
 })(window.THREE);
 

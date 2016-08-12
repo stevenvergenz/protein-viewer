@@ -104,6 +104,10 @@ function loadModel(done)
 			loader.load('models/ribbon/'+molId+'.gltf', function(model)
 			{
 				var ribbon = model.scene.children[0];
+				window.ribbon = ribbon;
+				ribbon.matrix.identity();
+				ribbon.matrix.decompose(ribbon.position, ribbon.quaternion, ribbon.scale);
+
 				ribbon.children.forEach(function(o, i){
 					o.traverse(function(o2){
 						if(o2 instanceof THREE.Mesh){
@@ -122,8 +126,6 @@ function loadModel(done)
 				done(err);
 			else {
 				var model = new THREE.Object3D();
-				if(results[0]) model.add(results[0]);
-				if(results[1]) model.add(results[1]);
 
 				if(defaultTransform[molId])
 					model.applyMatrix( defaultTransform[molId] );
@@ -132,8 +134,11 @@ function loadModel(done)
 					var radius = computeObjectRadius(model);
 					model.scale.multiplyScalar(1.0/radius);
 					model.position.set(0, 0, 1.2);
-					//model.rotation.set(0, 0, Math.PI/2);
+					model.rotation.set(0, 0, Math.PI/2);
 				}
+
+				if(results[0]) model.add(results[0]);
+				if(results[1]) model.add(results[1]);
 
 				done(null, model);
 			}
