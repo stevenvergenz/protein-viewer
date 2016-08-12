@@ -97,10 +97,13 @@ function loadModel(done)
 			if( /[?&]noribbon/.test(window.location.search) )
 				return done();
 
+			var colors = [0xd804e0, 0xcef615, 0x3e39fb, 0xff3737, 0x04e3d1,
+				0x2e8a1c, 0xcfcfcf, 0xffbb18, 0xffb4b4, 0xb8b4ff];
+
 			var loader = new THREE.glTFLoader();
 			loader.load('models/ribbon/'+molId+'.gltf', function(model)
 			{
-				var ribbon = model.scene.children[0].children[0].children[0];
+				window.ribbon = model.scene.children[0];
 				//ribbon.material.color.set(0xffff00);
 				done(null, ribbon);
 			});
