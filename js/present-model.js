@@ -103,8 +103,15 @@ function loadModel(done)
 			var loader = new THREE.glTFLoader();
 			loader.load('models/ribbon/'+molId+'.gltf', function(model)
 			{
-				window.ribbon = model.scene.children[0];
-				//ribbon.material.color.set(0xffff00);
+				var ribbon = model.scene.children[0];
+				ribbon.children.forEach(function(o, i){
+					o.traverse(function(o2){
+						if(o2 instanceof THREE.Mesh){
+							o2.material.color.set(colors[i]);
+						}
+					});
+				});
+
 				done(null, ribbon);
 			});
 		}],
@@ -125,7 +132,7 @@ function loadModel(done)
 					var radius = computeObjectRadius(model);
 					model.scale.multiplyScalar(1.0/radius);
 					model.position.set(0, 0, 1.2);
-					model.rotation.set(0, 0, Math.PI/2);
+					//model.rotation.set(0, 0, Math.PI/2);
 				}
 
 				done(null, model);

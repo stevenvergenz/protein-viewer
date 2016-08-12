@@ -392,87 +392,101 @@
             "uri": "2VAA.bin"
         }
     },
-    "extensionsUsed": ["KHR_materials_common"],
+    "extensionsUsed": [
+        "KHR_materials_common"
+    ],
     "images": {
-        "2VAA-blue-png": {
+        "_VAA-blue_png": {
+            "name": "_VAA-blue_png",
             "uri": "textures/2VAA-blue.png"
         },
-        "2VAA-green-png": {
+        "_VAA-green_png": {
+            "name": "_VAA-green_png",
             "uri": "textures/2VAA-green.png"
         },
-        "2VAA-grey-png": {
+        "_VAA-grey_png": {
+            "name": "_VAA-grey_png",
             "uri": "textures/2VAA-grey.png"
         },
-        "2VAA-lime-png": {
+        "_VAA-lime_png": {
+            "name": "_VAA-lime_png",
             "uri": "textures/2VAA-lime.png"
         },
-        "2VAA-magenta-png": {
+        "_VAA-magenta_png": {
+            "name": "_VAA-magenta_png",
             "uri": "textures/2VAA-magenta.png"
         },
-        "2VAA-teal-png": {
+        "_VAA-teal_png": {
+            "name": "_VAA-teal_png",
             "uri": "textures/2VAA-teal.png"
         }
     },
     "materials": {
-        "Material-effect": {
-            "extensions": {
-                "KHR_materials_common": {
-                    "technique": "CONSTANT",
-                    "values": {
-                        "diffuse": "2VAA-grey-tex"
-                    }
-                }
-            }
-        },
-        "Material_001-effect": {
-            "extensions": {
-                "KHR_materials_common": {
-                    "technique": "CONSTANT",
-                    "values": {
-                        "diffuse": "2VAA-lime-tex"
-                    }
-                }
-            }
-        },
-        "Material_002-effect": {
-            "extensions": {
-                "KHR_materials_common": {
-                    "technique": "CONSTANT",
-                    "values": {
-                        "diffuse": "2VAA-magenta-tex"
-                    }
-                }
-            }
-        },
-        "Material_003-effect": {
-            "extensions": {
-                "KHR_materials_common": {
-                    "technique": "CONSTANT",
-                    "values": {
-                        "diffuse": "2VAA-teal-tex"
-                    }
-                }
-            }
-        },
         "blue-effect": {
             "extensions": {
                 "KHR_materials_common": {
                     "technique": "CONSTANT",
                     "values": {
-                        "diffuse": "2VAA-blue-tex"
+                        "diffuse": "texture__VAA-blue_png"
                     }
                 }
-            }
+            },
+            "name": "blue"
         },
         "green-effect": {
             "extensions": {
                 "KHR_materials_common": {
                     "technique": "CONSTANT",
                     "values": {
-                        "diffuse": "2VAA-green-tex"
+                        "diffuse": "texture__VAA-green_png"
                     }
                 }
-            }
+            },
+            "name": "green"
+        },
+        "grey-effect": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "technique": "CONSTANT",
+                    "values": {
+                        "diffuse": "texture__VAA-grey_png"
+                    }
+                }
+            },
+            "name": "grey"
+        },
+        "lime-effect": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "technique": "CONSTANT",
+                    "values": {
+                        "diffuse": "texture__VAA-lime_png"
+                    }
+                }
+            },
+            "name": "lime"
+        },
+        "magenta-effect": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "technique": "CONSTANT",
+                    "values": {
+                        "diffuse": "texture__VAA-magenta_png"
+                    }
+                }
+            },
+            "name": "magenta"
+        },
+        "teal-effect": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "technique": "CONSTANT",
+                    "values": {
+                        "diffuse": "texture__VAA-teal_png"
+                    }
+                }
+            },
+            "name": "teal"
         }
     },
     "meshes": {
@@ -486,7 +500,7 @@
                         "TEXCOORD_0": "accessor_27"
                     },
                     "indices": "accessor_21",
-                    "material": "Material-effect",
+                    "material": "grey-effect",
                     "mode": 4
                 }
             ]
@@ -516,7 +530,7 @@
                         "TEXCOORD_0": "accessor_81"
                     },
                     "indices": "accessor_75",
-                    "material": "Material_001-effect",
+                    "material": "lime-effect",
                     "mode": 4
                 }
             ]
@@ -531,7 +545,7 @@
                         "TEXCOORD_0": "accessor_108"
                     },
                     "indices": "accessor_102",
-                    "material": "Material_003-effect",
+                    "material": "teal-effect",
                     "mode": 4
                 }
             ]
@@ -561,7 +575,7 @@
                         "TEXCOORD_0": "accessor_162"
                     },
                     "indices": "accessor_156",
-                    "material": "Material_002-effect",
+                    "material": "magenta-effect",
                     "mode": 4
                 }
             ]
@@ -748,7 +762,14 @@
             "name": "teal"
         }
     },
-    "programs": {},
+    "samplers": {
+        "sampler_0": {
+            "magFilter": 9729,
+            "minFilter": 9729,
+            "wrapS": 10497,
+            "wrapT": 10497
+        }
+    },
     "scene": "defaultScene",
     "scenes": {
         "defaultScene": {
@@ -757,57 +778,55 @@
             ]
         }
     },
-    "shaders": {},
     "skins": {},
-    "techniques": {},
     "textures": {
-        "2VAA-blue-tex": {
-            "format": 6407,
-            "internalFormat": 35911,
-            "target": 3553,
+        "texture__VAA-blue_png": {
+            "format": 6408,
+            "internalFormat": 6408,
             "sampler": "sampler_0",
-            "type": 5121,
-            "source": "2VAA-blue-png"
-        },
-        "2VAA-green-tex": {
-            "format": 6407,
-            "internalFormat": 35911,
+            "source": "_VAA-blue_png",
             "target": 3553,
-            "sampler": "sampler_1",
-            "type": 5121,
-            "source": "2VAA-green-png"
+            "type": 5121
         },
-        "2VAA-grey-tex": {
-            "format": 6407,
-            "internalFormat": 35911,
+        "texture__VAA-green_png": {
+            "format": 6408,
+            "internalFormat": 6408,
+            "sampler": "sampler_0",
+            "source": "_VAA-green_png",
             "target": 3553,
-            "sampler": "sampler_2",
-            "type": 5121,
-            "source": "2VAA-grey-png"
+            "type": 5121
         },
-        "2VAA-lime-tex": {
-            "format": 6407,
-            "internalFormat": 35911,
+        "texture__VAA-grey_png": {
+            "format": 6408,
+            "internalFormat": 6408,
+            "sampler": "sampler_0",
+            "source": "_VAA-grey_png",
             "target": 3553,
-            "sampler": "sampler_3",
-            "type": 5121,
-            "source": "2VAA-lime-png"
+            "type": 5121
         },
-        "2VAA-magenta-tex": {
-            "format": 6407,
-            "internalFormat": 35911,
+        "texture__VAA-lime_png": {
+            "format": 6408,
+            "internalFormat": 6408,
+            "sampler": "sampler_0",
+            "source": "_VAA-lime_png",
             "target": 3553,
-            "sampler": "sampler_4",
-            "type": 5121,
-            "source": "2VAA-magenta-png"
+            "type": 5121
         },
-        "2VAA-teal-tex": {
-            "format": 6407,
-            "internalFormat": 35911,
+        "texture__VAA-magenta_png": {
+            "format": 6408,
+            "internalFormat": 6408,
+            "sampler": "sampler_0",
+            "source": "_VAA-magenta_png",
             "target": 3553,
-            "sampler": "sampler_5",
-            "type": 5121,
-            "source": "2VAA-teal-png"
+            "type": 5121
+        },
+        "texture__VAA-teal_png": {
+            "format": 6408,
+            "internalFormat": 6408,
+            "sampler": "sampler_0",
+            "source": "_VAA-teal_png",
+            "target": 3553,
+            "type": 5121
         }
     }
 }
