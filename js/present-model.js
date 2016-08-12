@@ -57,9 +57,9 @@ async.parallel(
 function loadModel(done)
 {
 	var defaultTransform = {
-		'2VAA': new THREE.Matrix4().fromArray([5.0921660370876786e-18, 0.022933077067136765, -5.0921660370876786e-18, 0, 0, 5.0921660370876786e-18, 0.022933077067136765, 0, 0.022933077067136765, -5.0921660370876786e-18, 0, 0, 0, 0, 1, 1]),
+		//'2VAA': new THREE.Matrix4().fromArray([5.0921660370876786e-18, 0.022933077067136765, -5.0921660370876786e-18, 0, 0, 5.0921660370876786e-18, 0.022933077067136765, 0, 0.022933077067136765, -5.0921660370876786e-18, 0, 0, 0, 0, 1, 1]),
 		//'2M6C': new THREE.Matrix4().fromArray([0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 0, 0.09831853955984116, 0, 0, 0, 1.2, 1])
-		'2M6C': new THREE.Matrix4().fromArray([-0.09831853955984116, 1.2040150655926865e-17, -4.816060262370746e-17, 0, -4.816060262370746e-17, -4.366220254674198e-17, 0.09831853955984116, 0, 1.2040150655926865e-17, 0.09831853955984116, 4.366220254674198e-17, 0, 0, 0, 1.2000000476837158, 1])
+		//'2M6C': new THREE.Matrix4().fromArray([-0.09831853955984116, 1.2040150655926865e-17, -4.816060262370746e-17, 0, -4.816060262370746e-17, -4.366220254674198e-17, 0.09831853955984116, 0, 1.2040150655926865e-17, 0.09831853955984116, 4.366220254674198e-17, 0, 0, 0, 1.2000000476837158, 1])
 	};
 
 	var molId = /[?&]molecule=(\w+)/.exec(window.location.search);
@@ -72,6 +72,11 @@ function loadModel(done)
 
 	var menuItem = document.getElementById(molId);
 	if(menuItem) menuItem.style.color = '#87ceeb';
+
+	if(/[?&]noribbon/.test(window.location.search))
+		document.getElementById('noribbon').style.color = '#87ceeb';
+	if(/[?&]noball/.test(window.location.search))
+		document.getElementById('noball').style.color = '#87ceeb';
 
 
 	var molecule = new THREE.Object3D();
@@ -135,8 +140,8 @@ function loadModel(done)
 				else
 				{
 					var radius = computeObjectRadius(model);
-					model.scale.multiplyScalar(1.0/radius);
-					model.position.set(0, 0, 1.2);
+					model.scale.multiplyScalar(1.5/radius);
+					model.position.set(0, 0, 1.5);
 					model.rotation.set(0, 0, Math.PI/2);
 				}
 
