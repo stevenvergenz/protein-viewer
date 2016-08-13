@@ -434,12 +434,13 @@ catch(e){
 
 			outputMeshes.forEach(function(mesh1)
 			{
-				model.add(
-					new THREE.Mesh(
-						new THREE.BufferGeometry().fromGeometry(mesh1.geometry),
-						mesh1.material
-					)
+				var mesh2 = new THREE.Mesh(
+					new THREE.BufferGeometry().fromGeometry(mesh1.geometry),
+					mesh1.material
 				);
+				mesh2.geometry.removeAttribute('uv');
+				mesh2.geometry.removeAttribute('color');
+				model.add(mesh2);
 			});
 
 			return model;
