@@ -236,7 +236,7 @@ catch(e){
 			var atomMap = {};
 			var bondMap = {};
 
-			var max = new THREE.Vector3(), min = new THREE.Vector3();
+			var bounds = new THREE.Box3();
 
 			var stick = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true), new THREE.MeshBasicMaterial({color: 0xffffff}));
 			stick.geometry.rotateX(Math.PI/2);
@@ -273,8 +273,7 @@ catch(e){
 				mesh.updateMatrix();
 
 				// update bounds of molecule for later centering
-				max.max(mesh.position);
-				min.min(mesh.position);
+				bounds.expandByPoint(mesh.position);
 
 				// add to molecule
 				if(options.mergeLikeAtoms)
@@ -383,8 +382,7 @@ catch(e){
 			});
 
 			// calculate geometry offset
-			var offset = max.add(min).multiplyScalar(0.5).negate();
-			window.console.log(offset.toArray());
+			var offset = bounds.center().negate();
 			outputMeshes.forEach(function(m){
 				m.geometry.translate(offset.x, offset.y, offset.z);
 			});
