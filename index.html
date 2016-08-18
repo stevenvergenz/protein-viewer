@@ -10,19 +10,23 @@
 
 		<style>
 			.bar {
+				color: white;
+				font-size: 24px;
+				font-weight: bold;
 			}
 
 			.item {
 				display: inline-block;
 				padding: 5px 10px;
 
-				text-align: center;
-				font-size: 24px;
-				font-weight: bold;
 
 				background-color: black;
 				color: white;
 				text-decoration: none;
+			}
+
+			.item:hover {
+				text-decoration: underline;
 			}
 
 			h1 {
@@ -72,8 +76,9 @@
 			<a href='?molecule=4X5W' onclick='return navigate("4X5W");' class='item' id='4X5W'>4X5W</a>
 			<a href='?molecule=1AQD' onclick='return navigate("1AQD");' class='item' id='1AQD'>1AQD</a>
 			<a href='?molecule=1J8H' onclick='return navigate("1J8H");' class='item' id='1J8H'>1J8H</a>
-			<a href='javascript:;' onclick='return toggleOption("noribbon");' class='item' id='noribbon'>No Ribbons</a>
-			<a href='javascript:;' onclick='return toggleOption("noball");' class='item' id='noball'>No Ball/Stick</a>
+			-
+			<a href='javascript:;' onclick='return toggleOption("noribbon");' class='item' id='ribbon'>Ribbons</a>
+			<a href='javascript:;' onclick='return toggleOption("noball");' class='item' id='ball'>Structure</a>
 		</p>
 		<div style='text-align: center;' id='loading'>
 			<img src='img/benzene.gif' alt='Loading'/>

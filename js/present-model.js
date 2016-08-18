@@ -72,10 +72,10 @@ function loadModel(done)
 	var menuItem = document.getElementById(molId);
 	if(menuItem) menuItem.style.color = '#87ceeb';
 
-	if(/[?&]noribbon/.test(window.location.search))
-		document.getElementById('noribbon').style.color = '#87ceeb';
-	if(/[?&]noball/.test(window.location.search))
-		document.getElementById('noball').style.color = '#87ceeb';
+	if(!/[?&]noribbon/.test(window.location.search))
+		document.getElementById('ribbon').style.color = '#87ceeb';
+	if(!/[?&]noball/.test(window.location.search))
+		document.getElementById('ball').style.color = '#87ceeb';
 
 
 	var molecule = new THREE.Object3D();
@@ -116,6 +116,7 @@ function loadModel(done)
 					o.traverse(function(o2){
 						if(o2 instanceof THREE.Mesh){
 							o2.material.color.set(colors[i]);
+							o2.material.side = THREE.DoubleSide;
 						}
 					});
 				});
