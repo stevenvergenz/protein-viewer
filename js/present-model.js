@@ -57,7 +57,8 @@ async.parallel(
 function loadModel(done)
 {
 	var defaultTransform = {
-		'2VAA': new THREE.Matrix4().fromArray([0.024075772613286972, 0, 0, 0, 0, 5.345895418182194e-18, 0.024075772613286972, 0, 0, -0.024075772613286972, 5.345895418182194e-18, 0, 0, 0, 1, 1])
+		//'2VAA': new THREE.Matrix4().fromArray([0.024075772613286972, 0, 0, 0, 0, 5.345895418182194e-18, 0.024075772613286972, 0, 0, -0.024075772613286972, 5.345895418182194e-18, 0, 0, 0, 1, 1]),
+		//'3UTQ': new THREE.Matrix4().fromArray([0.02677907422184944, 0, 0, 0, 0, 5.9461489558486494e-18, 0.02677907422184944, 0, 0, -0.02677907422184944, 5.9461489558486494e-18, 0, 0, 0, 1, 1])
 	};
 
 	var molId = /[?&]molecule=(\w+)/.exec(window.location.search);
@@ -140,6 +141,7 @@ function loadModel(done)
 					var radius = computeObjectRadius(model);
 					model.scale.multiplyScalar(1.0/radius);
 					model.position.set(0, 0, 1);
+					model.rotation.set(Math.PI/2, 0, 0);
 				}
 
 				done(null, model);
