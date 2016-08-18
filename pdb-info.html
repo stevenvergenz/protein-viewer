@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<title>Protein Metadata - MolVR</title>
 		<style>
-
 			html, body {
 				height: 100%;
 				padding: 0;
@@ -14,7 +14,7 @@
 				top: 0;
 				left: 0;
 				margin: 0;
-				background-color: rgba(0,0,0,0.5);
+				background-color: rgba(0,0,0,0.7);
 			}
 
 			.item {
@@ -34,14 +34,18 @@
 				width: 100%;
 				height: 99%;
 			}
-
 		</style>
 		<script>
 
-			function navigateIframe(evt)
+			function color(evt)
 			{
-				console.log(evt.target.href);
-				return false;
+				// normal color everything
+				var buttons = evt.target.parentElement.children;
+				for(var i=0; i<buttons.length; i++)
+					buttons[i].style.color = '';
+
+				// special color current page
+				evt.target.style.color = '#87ceeb';
 			}
 
 		</script>
@@ -49,19 +53,19 @@
 	<body>
 		<p class='bar'>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=2vaa'
-				target='view' class='item' id='2VAA'>2VAA</a>
+				target='view' onclick='color(event)' class='item' id='2VAA'>2VAA</a>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=2m6c'
-				target='view' class='item' id='2M6C'>2M6C</a>
+				target='view' onclick='color(event)' class='item' id='2M6C'>2M6C</a>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=3utq'
-				target='view' class='item' id='3UTQ'>3UTQ</a>
+				target='view' onclick='color(event)' class='item' id='3UTQ'>3UTQ</a>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=4x5w'
-				target='view' class='item' id='4X5W'>4X5W</a>
+				target='view' onclick='color(event)' class='item' id='4X5W'>4X5W</a>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=1aqd'
-				target='view' class='item' id='1AQD'>1AQD</a>
+				target='view' onclick='color(event)' class='item' id='1AQD'>1AQD</a>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=1j8h'
-				target='view' class='item' id='1J8H'>1J8H</a>
+				target='view' onclick='color(event)' class='item' id='1J8H'>1J8H</a>
 		</p>
-		<iframe name='view' frameborder='0'>
+		<iframe name='view' frameborder='0' src='http://www.rcsb.org/pdb/home/home.do'>
 		</iframe>
 	</body>
 </html>
