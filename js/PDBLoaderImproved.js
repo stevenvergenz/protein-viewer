@@ -384,6 +384,7 @@ catch(e){
 
 			// calculate geometry offset
 			var offset = bounds.center().negate();
+			window.console.log('pdb offset: '+offset.toArray());
 			outputMeshes.forEach(function(m){
 				m.geometry.translate(offset.x, offset.y, offset.z);
 			});
