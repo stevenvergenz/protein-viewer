@@ -240,7 +240,7 @@ catch(e){
 
 			var stick = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true), new THREE.MeshBasicMaterial({color: 0xffffff}));
 			stick.geometry.rotateX(Math.PI/2);
-			var ballGeometry = new THREE.BoxGeometry(0.2,0.2,0.2);
+			var ballGeometry = new THREE.BoxGeometry(0.3,0.3,0.3);
 			
 			var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
 			bonds.name = 'bonds';
