@@ -352,8 +352,8 @@ catch(e){
 					var aa = molecule.atoms[a], ab = molecule.atoms[b];
 					var va = new THREE.Vector3(aa.x, aa.y, aa.z);
 					var vb = new THREE.Vector3(ab.x, ab.y, ab.z);
-
-					if( !bondMap[a] || bondMap[a].indexOf(b) === -1 )
+					console.log('manual bond length: '+va.distanceTo(vb));
+					if( (!bondMap[a] || bondMap[a].indexOf(b) === -1) && va.distanceTo(vb) <= 15 )
 					{
 						// add to bond map
 						bondMap[a] = bondMap[a] || [];
