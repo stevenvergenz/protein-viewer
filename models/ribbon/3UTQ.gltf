@@ -51,12 +51,12 @@
             "componentType": 5126,
             "count": 540,
             "max": [
-                0.9984,
-                0.9984
+                0.998099,
+                0.998099
             ],
             "min": [
-                0.00159997,
-                0.00160003
+                0.00190109,
+                0.00190109
             ],
             "type": "VEC2"
         },
@@ -93,7 +93,7 @@
             "componentType": 5126,
             "count": 14661,
             "max": [
-                0.999017,
+                0.999018,
                 0.99992,
                 0.998387
             ],
@@ -111,12 +111,12 @@
             "componentType": 5126,
             "count": 14661,
             "max": [
-                0.9984,
-                0.9984
+                0.998099,
+                0.998099
             ],
             "min": [
-                0.00159997,
-                0.00160003
+                0.00190109,
+                0.00190109
             ],
             "type": "VEC2"
         },
@@ -135,7 +135,7 @@
             "componentType": 5126,
             "count": 6390,
             "max": [
-                30.3988,
+                30.3987,
                 27.1176,
                 12.1997
             ],
@@ -171,12 +171,12 @@
             "componentType": 5126,
             "count": 6390,
             "max": [
-                0.9984,
-                0.9984
+                0.998099,
+                0.998099
             ],
             "min": [
-                0.00159997,
-                0.00160003
+                0.00190109,
+                0.00190109
             ],
             "type": "VEC2"
         },
@@ -231,12 +231,12 @@
             "componentType": 5126,
             "count": 369,
             "max": [
-                0.9984,
-                0.9984
+                0.998099,
+                0.998099
             ],
             "min": [
-                0.00159997,
-                0.00160003
+                0.00190109,
+                0.00190109
             ],
             "type": "VEC2"
         },
@@ -278,7 +278,7 @@
                 0.995676
             ],
             "min": [
-                -0.995861,
+                -0.995862,
                 -0.998413,
                 -0.996064
             ],
@@ -291,12 +291,12 @@
             "componentType": 5126,
             "count": 7893,
             "max": [
-                0.9984,
-                0.9984
+                0.998099,
+                0.998099
             ],
             "min": [
-                0.00159997,
-                0.00160003
+                0.00190109,
+                0.00190109
             ],
             "type": "VEC2"
         },
@@ -338,7 +338,7 @@
                 0.999206
             ],
             "min": [
-                -0.997944,
+                -0.997945,
                 -0.997889,
                 -0.999446
             ],
@@ -351,25 +351,25 @@
             "componentType": 5126,
             "count": 4887,
             "max": [
-                0.9984,
-                0.9984
+                0.998099,
+                0.998099
             ],
             "min": [
-                0.00159997,
-                0.00160003
+                0.00190109,
+                0.00190109
             ],
             "type": "VEC2"
         }
     },
     "animations": {},
     "asset": {
-        "generator": "collada2gltf@d78daf1e7950e6c22fe6bec1d07965e8a302e90d",
+        "generator": "collada2gltf@cf6371beb0bdc18ba603378d5e40c966da53d385",
         "premultipliedAlpha": true,
         "profile": {
             "api": "WebGL",
             "version": "1.0.2"
         },
-        "version": 1
+        "version": "1.0"
     },
     "bufferViews": {
         "bufferView_164": {
@@ -425,7 +425,10 @@
         "vmd_mat_cindex_0_001-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture__UTQ-helix2_png"
                     }
@@ -436,7 +439,10 @@
         "vmd_mat_cindex_10_001-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture__UTQ-turn2_png"
                     }
@@ -447,7 +453,10 @@
         "vmd_mat_cindex_11-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture__UTQ-helix1_png"
                     }
@@ -458,7 +467,10 @@
         "vmd_mat_cindex_17-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture__UTQ-sheet1_png"
                     }
@@ -469,7 +481,10 @@
         "vmd_mat_cindex_408-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture__UTQ-turn1_png"
                     }
@@ -480,7 +495,10 @@
         "vmd_mat_cindex_5-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture_Untitled"
                     }
