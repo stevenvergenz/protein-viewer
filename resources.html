@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Protein Metadata - MolVR</title>
+		<title>Protein Metadata - AltPDB</title>
 		<style>
 			html, body {
 				height: 100%;
@@ -37,37 +37,57 @@
 		</style>
 		<script>
 
-			function color(evt)
+			function init(evt)
 			{
-				// normal color everything
-				var buttons = evt.target.parentElement.children;
-				for(var i=0; i<buttons.length; i++)
-					buttons[i].style.color = '';
+				var iframe = document.querySelector('iframe');
 
-				// special color current page
-				evt.target.style.color = '#87ceeb';
+				var match = /[&?]url=([^&]+)/.exec(window.location.search);
+				if(match)
+				{
+					var url = decodeURIComponent(match[1]);
+					iframe.src = url;
+
+					var elem = document.querySelector('a[href="'+url+'"]');
+					elem.style.color = '#87ceeb';
+				}
+				else
+					iframe.src = 'http://www.rcsb.org/pdb/home/home.do';
+			}
+
+			function navigate(evt)
+			{
+				var url = evt.target.href;
+				if(!/[&?]noframe/.test(window.location.search))
+				{
+					window.location.href = '?url='+encodeURIComponent(url);
+					return false;
+				}
+				else
+				{
+					window.location.href = url;
+				}
 			}
 
 		</script>
 	</head>
-	<body>
+	<body onload='init()'>
 		<p class='bar'>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=2vaa'
-				target='view' onclick='color(event)' class='item' >2VAA</a>
+				target='view' onclick='return navigate(event)' class='item'>2VAA</a>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=2m6c'
-				target='view' onclick='color(event)' class='item' >2M6C</a>
+				target='view' onclick='return navigate(event)' class='item'>2M6C</a>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=3utq'
-				target='view' onclick='color(event)' class='item' >3UTQ</a>
+				target='view' onclick='return navigate(event)' class='item'>3UTQ</a>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=4x5w'
-				target='view' onclick='color(event)' class='item'>4X5W</a>
+				target='view' onclick='return navigate(event)' class='item'>4X5W</a>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=1aqd'
-				target='view' onclick='color(event)' class='item'>1AQD</a>
+				target='view' onclick='return navigate(event)' class='item'>1AQD</a>
 			<a href='http://www.rcsb.org/pdb/explore/explore.do?structureId=1j8h'
-				target='view' onclick='color(event)' class='item'>1J8H</a>
+				target='view' onclick='return navigate(event)' class='item'>1J8H</a>
 			<a href='https://www.youtube.com/embed/VPvCekgPwRI'
-				target='view' onclick='color(event)' class='item'>YouTube</a>
+				target='view' onclick='return navigate(event)' class='item'>YouTube</a>
 		</p>
-		<iframe name='view' frameborder='0' src='http://www.rcsb.org/pdb/home/home.do'>
+		<iframe name='view' frameborder='0'>
 		</iframe>
 	</body>
 </html>
