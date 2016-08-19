@@ -30,7 +30,7 @@ The pdb file is read to create the atom-and-bond model. The protein models are l
 
 A VR enclosure is created and the model is rendered. The type of viewing hardware that is being used by a guest is identified and the rendering mode is adjusted to enable the largest possible number of viewing platforms.
 
-A User Interface (UI) is available to the host of the MolVR application, the person who creates the AltspaceVR room and shares its URL address with other guests.  The UI enables selection of different PDB proteins, and whether to display the structure (ribbon) or bond (atom-and-bonds) view. Some reference materials, like a table of amino acids, is displayed on the walls of the virtual space.
+A User Interface (UI) is available to the host of the MolVR application, the person who creates the AltspaceVR room and shares its URL address with other guests.  The UI enables selection of different PDB proteins, and whether to display the structure (ribbon) or bond (atom-and-bonds) view. There is a web browser embedded in the room so that you can access other related reference materials without leaving VR.
 
 ## Future Plans 
 *Steven, Do we want to map this out or not?  It could be our near-term (post Altspace funding) goals, or we could map out a long-term "ideal user scenario" that could focus contributing work for some time to come. Your thoughts?*
@@ -38,6 +38,5 @@ A User Interface (UI) is available to the host of the MolVR application, the per
 * item 1
 * item 2
   * item 2a
+  * item 2b
   
-
-
