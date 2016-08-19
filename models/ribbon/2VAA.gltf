@@ -197,7 +197,7 @@
             "max": [
                 35.1391,
                 27.942,
-                27.83
+                27.8299
             ],
             "min": [
                 -19.2806,
@@ -260,7 +260,7 @@
                 24.4022
             ],
             "min": [
-                -13.1608,
+                -13.1607,
                 -32.0972,
                 -20.5601
             ],
@@ -363,13 +363,13 @@
     },
     "animations": {},
     "asset": {
-        "generator": "collada2gltf@d78daf1e7950e6c22fe6bec1d07965e8a302e90d",
+        "generator": "collada2gltf@cf6371beb0bdc18ba603378d5e40c966da53d385",
         "premultipliedAlpha": true,
         "profile": {
             "api": "WebGL",
             "version": "1.0.2"
         },
-        "version": 1
+        "version": "1.0"
     },
     "bufferViews": {
         "bufferView_164": {
@@ -425,7 +425,10 @@
         "blue-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture__VAA-blue_png"
                     }
@@ -436,7 +439,10 @@
         "green-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture__VAA-green_png"
                     }
@@ -447,7 +453,10 @@
         "grey-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture__VAA-grey_png"
                     }
@@ -458,7 +467,10 @@
         "lime-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture__VAA-lime_png"
                     }
@@ -469,7 +481,10 @@
         "magenta-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture__VAA-magenta_png"
                     }
@@ -480,7 +495,10 @@
         "teal-effect": {
             "extensions": {
                 "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
                     "technique": "CONSTANT",
+                    "transparent": false,
                     "values": {
                         "diffuse": "texture__VAA-teal_png"
                     }
@@ -593,15 +611,15 @@
             ],
             "matrix": [
                 0.997372,
-                1.08736e-08,
+                1.08736e-008,
                 -0.0724459,
                 0,
-                -1.0717e-08,
+                -1.0717e-008,
                 1,
-                2.55061e-09,
+                2.55061e-009,
                 0,
                 0.0724459,
-                -1.76751e-09,
+                -1.76751e-009,
                 0.997372,
                 0,
                 0,
@@ -615,15 +633,15 @@
             "children": [],
             "matrix": [
                 1,
-                1.44329e-15,
+                1.44329e-015,
                 0,
                 0,
-                -3.747e-16,
+                -3.747e-016,
                 1,
-                8.88178e-16,
+                8.88178e-016,
                 0,
                 0,
-                -6.66134e-16,
+                -6.66134e-016,
                 1,
                 0,
                 -9.8705,
@@ -640,15 +658,15 @@
             "children": [],
             "matrix": [
                 1,
-                1.44329e-15,
+                1.44329e-015,
                 0,
                 0,
-                -3.747e-16,
+                -3.747e-016,
                 1,
-                8.88178e-16,
+                8.88178e-016,
                 0,
                 0,
-                -6.66134e-16,
+                -6.66134e-016,
                 1,
                 0,
                 -9.8705,
@@ -665,15 +683,15 @@
             "children": [],
             "matrix": [
                 1,
-                1.44329e-15,
+                1.44329e-015,
                 0,
                 0,
-                -3.747e-16,
+                -3.747e-016,
                 1,
-                8.88178e-16,
+                8.88178e-016,
                 0,
                 0,
-                -6.66134e-16,
+                -6.66134e-016,
                 1,
                 0,
                 -9.8705,
@@ -690,15 +708,15 @@
             "children": [],
             "matrix": [
                 1,
-                1.44329e-15,
+                1.44329e-015,
                 0,
                 0,
-                -3.747e-16,
+                -3.747e-016,
                 1,
-                8.88178e-16,
+                8.88178e-016,
                 0,
                 0,
-                -6.66134e-16,
+                -6.66134e-016,
                 1,
                 0,
                 -9.8705,
@@ -715,15 +733,15 @@
             "children": [],
             "matrix": [
                 1,
-                1.44329e-15,
+                1.44329e-015,
                 0,
                 0,
-                -3.747e-16,
+                -3.747e-016,
                 1,
-                8.88178e-16,
+                8.88178e-016,
                 0,
                 0,
-                -6.66134e-16,
+                -6.66134e-016,
                 1,
                 0,
                 -9.8705,
@@ -764,15 +782,15 @@
             "children": [],
             "matrix": [
                 1,
-                1.44329e-15,
+                1.44329e-015,
                 0,
                 0,
-                -3.747e-16,
+                -3.747e-016,
                 1,
-                8.88178e-16,
+                8.88178e-016,
                 0,
                 0,
-                -6.66134e-16,
+                -6.66134e-016,
                 1,
                 0,
                 -9.8705,
