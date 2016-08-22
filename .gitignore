@@ -1,3 +1,6 @@
 *.swp
 *.blend1
 *.blend2
+models/ribbon/src/*.dae
+models/ribbon/src/*.bin
+models/ribbon/src/*.gltf
