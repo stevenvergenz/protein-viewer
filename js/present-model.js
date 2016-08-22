@@ -56,12 +56,17 @@ async.parallel(
 
 function loadModel(done)
 {
-	// these should be only those molecules that 
+	// these should be only those molecules that
 	var defaultTransform = {
 		'2VAA': new THREE.Matrix4().fromArray([0.025214113295078278, 0, 0, 0, 0, -5.5986578251406355e-18, 0.025214113295078278, 0, 0, -0.025214113295078278, -5.5986578251406355e-18, 0, 0, 0, 0.800000011920929, 1]),
 		'3UTQ': new THREE.Matrix4().fromArray([0.01705673336982727, 2.6780650619506564e-18, 0.01705673336982727, 0, -0.01705673336982727, 5.356130123901313e-18, 0.01705673336982727, 0, 0, -0.02412186563014984, 8.03419518585197e-18, 0, 0, 0, 0.800000011920929, 1]),
 		'4X5W': new THREE.Matrix4().fromArray([0.019939063116908073, 0, 0, 0, 0, -0.01633312553167343, -0.011436576955020428, 0, 0, 0.011436576955020428, -0.01633312553167343, 0, 0, 0, 0.800000011920929, 1])
 	};
+
+	if(!/[?&]noribbon/.test(window.location.search))
+		document.getElementById('ribbon').style.color = '#87ceeb';
+	if(!/[?&]noball/.test(window.location.search))
+		document.getElementById('ball').style.color = '#87ceeb';
 
 	var molId = /[?&]molecule=(\w+)/.exec(window.location.search);
 	if(!molId){
@@ -73,12 +78,6 @@ function loadModel(done)
 
 	var menuItem = document.getElementById(molId);
 	if(menuItem) menuItem.style.color = '#87ceeb';
-
-	if(!/[?&]noribbon/.test(window.location.search))
-		document.getElementById('ribbon').style.color = '#87ceeb';
-	if(!/[?&]noball/.test(window.location.search))
-		document.getElementById('ball').style.color = '#87ceeb';
-
 
 	var molecule = new THREE.Object3D();
 
