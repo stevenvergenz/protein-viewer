@@ -241,7 +241,7 @@ catch(e){
 			var stick = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true), new THREE.MeshBasicMaterial({color: 0xffffff}));
 			stick.geometry.rotateX(Math.PI/2);
 			var ballGeometry = new THREE.BoxGeometry(0.3,0.3,0.3);
-			
+
 			var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
 			bonds.name = 'bonds';
 			if(options.mergeLikeAtoms)
@@ -350,6 +350,8 @@ catch(e){
 						b = Math.max(bond.atomIndex, bond['bond'+i]) - 1;
 
 					var aa = molecule.atoms[a], ab = molecule.atoms[b];
+					if(!aa || !ab) continue;
+
 					var va = new THREE.Vector3(aa.x, aa.y, aa.z);
 					var vb = new THREE.Vector3(ab.x, ab.y, ab.z);
 					//console.log('manual bond length: '+va.distanceTo(vb));
@@ -564,7 +566,7 @@ catch(e){
 							geo[key].type = 'Int32';
 							type = Int32Array;
 						}
-						
+
 						// copy buffer to grand buffer
 						var dest = new type(buffer, offset);
 						dest.set(attr.array);
@@ -671,7 +673,7 @@ catch(e){
 		if( !/onmessage is not defined$/.test(e.toString()) )
 			throw e;
 	}
-	
+
 
 })(window.THREE);
 
