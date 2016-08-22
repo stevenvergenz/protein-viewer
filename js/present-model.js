@@ -157,8 +157,23 @@ function loadModel(done)
 
 function setupRenderer(done)
 {
+	var initialBufferSize = {
+		'1AQD': 30330519,
+		'2VAA':  7895284,
+		'3UTQ':  7895284,
+		'4X5W':  7895284,
+		'1J8H': 11053397, // no ribbons
+		'2WBJ': 21664657, // no ribbons
+		'3WPG': 11053397  // no ribbons
+	};
+	var molId = /[?&]molecule=(\w+)/.exec(window.location.search);
+	molId = molId && molId[1];
+
 	if(altspace.inClient){
-		renderer = altspace.getThreeJSRenderer();
+		renderer = altspace.getThreeJSRenderer({
+			initialSerializationBufferSize: initialBufferSize[molId] || (1<<20),
+			profile: false
+		});
 	}
 	else {
 		// set up preview renderer, in case we're out of world
