@@ -1229,7 +1229,7 @@
             ],
             "name": "turn1"
         },
-        "turn2": {
+        "turn3": {
             "children": [],
             "matrix": [
                 1,
@@ -1252,9 +1252,9 @@
             "meshes": [
                 "vmd_mol0_rep0_002-mesh"
             ],
-            "name": "turn2"
+            "name": "turn3"
         },
-        "turn3": {
+        "turn2": {
             "children": [],
             "matrix": [
                 1,
@@ -1277,7 +1277,7 @@
             "meshes": [
                 "vmd_mol0_rep0_004-mesh"
             ],
-            "name": "turn3"
+            "name": "turn2"
         }
     },
     "samplers": {

@@ -103,8 +103,16 @@ function loadModel(done)
 			if( /[?&]noribbon/.test(window.location.search) )
 				return done();
 
-			var colors = [0xd804e0, 0xcef615, 0x3e39fb, 0xff3737, 0x04e3d1,
-				0x2e8a1c, 0xcfcfcf, 0xffbb18, 0xffb4b4, 0xb8b4ff];
+			var colors = {
+				sheet1: 0xcef615,
+				helix2: 0x3e39fb,
+				helix1: 0xd804e0,
+				turn1: 0xcfcfcf,
+				turn2: 0x008080,
+				turn3: 0x2e8a1c,
+				default: [0xff3737, 0x04e3d1, 0xffbb18, 0xffb4b4],
+				defaultCount: 0
+			};
 
 			var loader = new THREE.glTFLoader();
 			loader.load('models/ribbon/'+molId+'.gltf', function(model)
@@ -114,11 +122,21 @@ function loadModel(done)
 				ribbon.matrix.identity();
 				ribbon.matrix.decompose(ribbon.position, ribbon.quaternion, ribbon.scale);
 
+				// color all children of each top level child by the name of the top-level child
 				ribbon.children.forEach(function(o, i){
 					o.traverse(function(o2){
-						if(o2 instanceof THREE.Mesh){
-							o2.material.color.set(colors[i]);
+						if(o2 instanceof THREE.Mesh)
+						{
 							o2.material.side = THREE.DoubleSide;
+
+							for(var i in colors)
+							{
+								if(new RegExp('^'+i).test(o.name)){
+									o2.material.color.set(colors[i]);
+									return;
+								}
+							}
+							o2.material.color.set(colors.default[colors.defaultCount++%4])
 						}
 					});
 				});
