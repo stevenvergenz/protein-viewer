@@ -154,9 +154,9 @@ function setupRenderer(done)
 		'2VAA':  7895284,
 		'3UTQ':  7895284,
 		'4X5W':  7895284,
-		'1J8H': 11053397, // no ribbons
-		'2WBJ': 21664657, // no ribbons
-		'3WPG': 11053397  // no ribbons
+		'1J8H': 15474755,
+		'2WBJ': 30330519,
+		'3WPG': 11053397
 	};
 	var molId = /[?&]molecule=(\w+)/.exec(window.location.search);
 	molId = molId && molId[1];
