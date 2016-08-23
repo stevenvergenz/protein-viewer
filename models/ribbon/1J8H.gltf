@@ -15,14 +15,14 @@
             "componentType": 5126,
             "count": 16866,
             "max": [
-                0.533738,
-                0.623039,
-                0.906239
+                34.3642,
+                40.3634,
+                56.0427
             ],
             "min": [
-                -0.594278,
-                -0.741731,
-                -0.827511
+                -36.2428,
+                -45.063,
+                -52.4797
             ],
             "type": "VEC3"
         },
@@ -75,14 +75,14 @@
             "componentType": 5126,
             "count": 1449,
             "max": [
-                0.401436,
-                0.533213,
-                0.881413
+                26.0829,
+                34.7408,
+                54.4887
             ],
             "min": [
-                -0.34075,
-                -0.430046,
-                -0.613806
+                -20.3735,
+                -25.5534,
+                -39.103
             ],
             "type": "VEC3"
         },
@@ -100,7 +100,7 @@
             "min": [
                 -0.998864,
                 -0.988091,
-                -0.989707
+                -0.989706
             ],
             "type": "VEC3"
         },
@@ -135,14 +135,14 @@
             "componentType": 5126,
             "count": 2151,
             "max": [
-                0.514752,
-                0.534138,
-                0.683971
+                33.1758,
+                34.7987,
+                42.13
             ],
             "min": [
-                -0.353375,
-                -0.378705,
-                -0.462373
+                -21.1637,
+                -22.3398,
+                -29.6242
             ],
             "type": "VEC3"
         },
@@ -160,7 +160,7 @@
             "min": [
                 -0.99831,
                 -0.999902,
-                -0.971322
+                -0.971331
             ],
             "type": "VEC3"
         },
@@ -195,14 +195,14 @@
             "componentType": 5126,
             "count": 18531,
             "max": [
-                0.473464,
-                0.498241,
-                0.814745
+                30.5914,
+                32.5518,
+                50.3157
             ],
             "min": [
-                -0.21737,
-                -0.288752,
-                -0.152329
+                -12.6506,
+                -16.7092,
+                -10.2173
             ],
             "type": "VEC3"
         },
@@ -255,14 +255,14 @@
             "componentType": 5126,
             "count": 5913,
             "max": [
-                0.526198,
-                0.371742,
-                0.833583
+                33.8923,
+                24.6337,
+                51.4949
             ],
             "min": [
-                -0.177873,
-                -0.37212,
-                -0.457319
+                -10.1783,
+                -21.9276,
+                -29.3079
             ],
             "type": "VEC3"
         },
@@ -273,12 +273,12 @@
             "componentType": 5126,
             "count": 5913,
             "max": [
-                0.995029,
+                0.99503,
                 0.99785,
                 0.999575
             ],
             "min": [
-                -0.996729,
+                -0.99673,
                 -0.996919,
                 -0.997466
             ],
@@ -315,14 +315,14 @@
             "componentType": 5126,
             "count": 12960,
             "max": [
-                0.50548,
-                0.689377,
-                0.883618
+                32.5955,
+                44.5158,
+                54.6267
             ],
             "min": [
-                -0.54938,
-                -0.677333,
-                -0.831604
+                -33.4325,
+                -41.0321,
+                -52.7359
             ],
             "type": "VEC3"
         },
@@ -375,14 +375,14 @@
             "componentType": 5126,
             "count": 15210,
             "max": [
-                0.310272,
-                0.160986,
-                -0.0354159
+                20.3766,
+                11.4417,
+                -2.89929
             ],
             "min": [
-                -0.513021,
-                -0.741471,
-                -0.812532
+                -31.1566,
+                -45.0467,
+                -51.5421
             ],
             "type": "VEC3"
         },
@@ -394,8 +394,8 @@
             "count": 15210,
             "max": [
                 0.998434,
-                0.999903,
-                0.998525
+                0.999904,
+                0.998526
             ],
             "min": [
                 -0.999473,
@@ -486,7 +486,7 @@
         }
     },
     "materials": {
-        "helix1-effect": {
+        "Material-effect": {
             "extensions": {
                 "KHR_materials_common": {
                     "doubleSided": false,
@@ -498,9 +498,9 @@
                     }
                 }
             },
-            "name": "helix1"
+            "name": "Material"
         },
-        "helix2-effect": {
+        "Material_001-effect": {
             "extensions": {
                 "KHR_materials_common": {
                     "doubleSided": false,
@@ -512,9 +512,9 @@
                     }
                 }
             },
-            "name": "helix2"
+            "name": "Material_001"
         },
-        "sheet1-effect": {
+        "Material_002-effect": {
             "extensions": {
                 "KHR_materials_common": {
                     "doubleSided": false,
@@ -526,7 +526,49 @@
                     }
                 }
             },
-            "name": "sheet1"
+            "name": "Material_002"
+        },
+        "Material_003-effect": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
+                    "technique": "CONSTANT",
+                    "transparent": false,
+                    "values": {
+                        "diffuse": "texture__J8H-turn1_png"
+                    }
+                }
+            },
+            "name": "Material_003"
+        },
+        "Material_004-effect": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
+                    "technique": "CONSTANT",
+                    "transparent": false,
+                    "values": {
+                        "diffuse": "texture__J8H-turn2_png"
+                    }
+                }
+            },
+            "name": "Material_004"
+        },
+        "Material_005-effect": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
+                    "technique": "CONSTANT",
+                    "transparent": false,
+                    "values": {
+                        "diffuse": "texture__J8H-turn3_png"
+                    }
+                }
+            },
+            "name": "Material_005"
         },
         "sheet1_001-effect": {
             "extensions": {
@@ -541,48 +583,6 @@
                 }
             },
             "name": "sheet1_001"
-        },
-        "turn1-effect": {
-            "extensions": {
-                "KHR_materials_common": {
-                    "doubleSided": false,
-                    "jointCount": 0,
-                    "technique": "CONSTANT",
-                    "transparent": false,
-                    "values": {
-                        "diffuse": "texture__J8H-turn1_png"
-                    }
-                }
-            },
-            "name": "turn1"
-        },
-        "turn2-effect": {
-            "extensions": {
-                "KHR_materials_common": {
-                    "doubleSided": false,
-                    "jointCount": 0,
-                    "technique": "CONSTANT",
-                    "transparent": false,
-                    "values": {
-                        "diffuse": "texture__J8H-turn2_png"
-                    }
-                }
-            },
-            "name": "turn2"
-        },
-        "turn3-effect": {
-            "extensions": {
-                "KHR_materials_common": {
-                    "doubleSided": false,
-                    "jointCount": 0,
-                    "technique": "CONSTANT",
-                    "transparent": false,
-                    "values": {
-                        "diffuse": "texture__J8H-turn3_png"
-                    }
-                }
-            },
-            "name": "turn3"
         }
     },
     "meshes": {
@@ -596,7 +596,7 @@
                         "TEXCOORD_0": "accessor_27"
                     },
                     "indices": "accessor_21",
-                    "material": "helix1-effect",
+                    "material": "Material-effect",
                     "mode": 4
                 }
             ]
@@ -611,7 +611,7 @@
                         "TEXCOORD_0": "accessor_54"
                     },
                     "indices": "accessor_48",
-                    "material": "turn2-effect",
+                    "material": "Material_004-effect",
                     "mode": 4
                 }
             ]
@@ -626,7 +626,7 @@
                         "TEXCOORD_0": "accessor_81"
                     },
                     "indices": "accessor_75",
-                    "material": "sheet1-effect",
+                    "material": "Material_002-effect",
                     "mode": 4
                 }
             ]
@@ -641,7 +641,7 @@
                         "TEXCOORD_0": "accessor_108"
                     },
                     "indices": "accessor_102",
-                    "material": "turn1-effect",
+                    "material": "Material_003-effect",
                     "mode": 4
                 }
             ]
@@ -656,7 +656,7 @@
                         "TEXCOORD_0": "accessor_135"
                     },
                     "indices": "accessor_129",
-                    "material": "turn3-effect",
+                    "material": "Material_005-effect",
                     "mode": 4
                 }
             ]
@@ -671,7 +671,7 @@
                         "TEXCOORD_0": "accessor_162"
                     },
                     "indices": "accessor_156",
-                    "material": "helix2-effect",
+                    "material": "Material_001-effect",
                     "mode": 4
                 }
             ]
@@ -726,21 +726,21 @@
         "helix1": {
             "children": [],
             "matrix": [
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
-                0.955437,
-                1.36491,
-                -0.682455,
+                0,
+                0,
+                0,
                 1
             ],
             "meshes": [
@@ -751,21 +751,21 @@
         "helix2": {
             "children": [],
             "matrix": [
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
-                0.955437,
-                1.36491,
-                -0.682455,
+                0,
+                0,
+                0,
                 1
             ],
             "meshes": [
@@ -800,21 +800,21 @@
         "sheet1": {
             "children": [],
             "matrix": [
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
-                0.955437,
-                1.36491,
-                -0.682455,
+                0,
+                0,
+                0,
                 1
             ],
             "meshes": [
@@ -825,21 +825,21 @@
         "sheet1_001": {
             "children": [],
             "matrix": [
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
-                0.955437,
-                1.36491,
-                -0.682455,
+                0,
+                0,
+                0,
                 1
             ],
             "meshes": [
@@ -850,21 +850,21 @@
         "turn1": {
             "children": [],
             "matrix": [
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
-                0.955437,
-                1.36491,
-                -0.682455,
+                0,
+                0,
+                0,
                 1
             ],
             "meshes": [
@@ -875,21 +875,21 @@
         "turn2": {
             "children": [],
             "matrix": [
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
-                0.955437,
-                1.36491,
-                -0.682455,
+                0,
+                0,
+                0,
                 1
             ],
             "meshes": [
@@ -900,21 +900,21 @@
         "turn3": {
             "children": [],
             "matrix": [
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
                 0,
                 0,
                 0,
-                62.594,
+                1,
                 0,
-                0.955437,
-                1.36491,
-                -0.682455,
+                0,
+                0,
+                0,
                 1
             ],
             "meshes": [
