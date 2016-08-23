@@ -14,33 +14,6 @@ window.requestAnimationFrame(function animate(timestamp)
 	renderer.render(scene, camera);
 });
 
-function computeObjectRadius(o, center)
-{
-	center = center || new THREE.Vector3(0,0,0);
-	var max = 0;
-
-	if(o instanceof THREE.Mesh)
-	{
-		var vertexList = o.geometry.getAttribute('position');
-		for(var i=0; i<vertexList.count; i++)
-		{
-			var vert = new THREE.Vector3().fromArray( Array.prototype.slice.call(vertexList.array, 3*i, 3*i+3) );
-			var test = vert.distanceTo(center);
-			if(test > max) max = test;
-		}
-	}
-	else
-	{
-		o.children.forEach(function(child)
-		{
-			var inverse = new THREE.Matrix4().getInverse(child.matrix);
-			var test = computeObjectRadius(child, center.clone().applyMatrix4(inverse));
-			if(test > max) max = test;
-		});
-	}
-
-	return max;
-}
 
 // start loading everything in the right order
 async.parallel(
@@ -159,7 +132,7 @@ function loadModel(done)
 					model.applyMatrix( defaultTransform[molId] );
 				else
 				{
-					var radius = computeObjectRadius(model);
+					var radius = Utils.computeObjectRadius(model);
 					model.scale.multiplyScalar(1.0/radius);
 					model.position.set(0, 0, 0.8);
 				}
