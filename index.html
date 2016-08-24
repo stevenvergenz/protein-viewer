@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Protein Viewer - MolVR</title>
+		<title>Protein Viewer - AltPDB</title>
 		<script src="lib/three.r74.min.js"></script>
 		<script src="lib/altspace-0.16.0.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/async/1.5.2/async.min.js"></script>
@@ -34,6 +34,13 @@
 				color: white;
 			}
 
+			form, form > input {
+				text-align: center;
+				font-size: 24px;
+				color: white;
+				background-color: black;
+			}
+
 			canvas {
 				position: absolute;
 				top: 0; left: 0;
@@ -43,11 +50,12 @@
 
 		<script>
 
-			function navigate(mol){
+			function navigate(mol, options){
+				options = options || {};
 				var path = '?molecule='+mol;
-				if(/[&?]noribbon/.test(window.location.search))
+				if(options.noribbon === true || options.noribbon === undefined && /[&?]noribbon/.test(window.location.search))
 					path += '&noribbon';
-				if(/[&?]noball/.test(window.location.search))
+				if(options.noball === true || options.noball === undefined && /[&?]noball/.test(window.location.search))
 					path += '&noball';
 
 				window.location.replace(path);
@@ -67,10 +75,28 @@
 				return false;
 			}
 
+			function toggleCustomDialog(){
+				var form = document.querySelector('form');
+				if(form.style.display === 'none'){
+					form.style.display = '';
+					document.querySelector('a#other').style.color = '#87ceeb';
+				}
+				else {
+					form.style.display = 'none';
+					document.querySelector('a#other').style.color = '';
+				}
+				return false;
+			}
+
+			function constructUrl(evt){
+				var data = new FormData(evt.target);
+				return navigate(data.get('mol').toUpperCase(), {noribbon: true, noball: false});
+			}
+
 		</script>
 	</head>
 	<body>
-		<p class='bar'>
+		<div class='bar'>
 			<a href='?molecule=2VAA' onclick='return navigate("2VAA");' class='item' id='2VAA'>2VAA</a>
 			<a href='?molecule=3UTQ' onclick='return navigate("3UTQ");' class='item' id='3UTQ'>3UTQ</a>
 			<a href='?molecule=4X5W' onclick='return navigate("4X5W");' class='item' id='4X5W'>4X5W</a>
@@ -78,10 +104,16 @@
 			<a href='?molecule=1J8H' onclick='return navigate("1J8H");' class='item' id='1J8H'>1J8H</a>
 			<a href='?molecule=1AQD' onclick='return navigate("1AQD");' class='item' id='1AQD'>1AQD</a>
 			<a href='?molecule=2WBJ' onclick='return navigate("2WBJ");' class='item' id='2WBJ'>2WBJ</a>
+			<a href='javascript:;' onclick='return toggleCustomDialog();' class='item' id='other'>Other</a>
 			-
 			<a href='javascript:;' onclick='return toggleOption("noribbon");' class='item' id='ribbon'>Structure</a>
 			<a href='javascript:;' onclick='return toggleOption("noball");' class='item' id='ball'>Ball</a>
-		</p>
+		</div>
+		<form onsubmit='return constructUrl(event);' style='display:none;'>
+			<span>Protein Data Bank ID: </span>
+			<input name='mol' type='text'></input>
+			<input type='submit' value='Go'></input>
+		</form>
 		<div style='text-align: center;' id='loading'>
 			<img src='img/benzene.gif' alt='Loading'/>
 			<h1>Loading...</h1>

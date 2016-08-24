@@ -58,7 +58,7 @@ catch(e){
 			{
 				window.console.log('spinning up worker');
 				var worker = new Worker('js/PDBLoaderImproved.js');
-				worker.postMessage('../'+url);
+				worker.postMessage(/^http/.test(url) ? url : '../'+url);
 				worker.onmessage = function(msg)
 				{
 					var payload = msg.data;
@@ -70,6 +70,10 @@ catch(e){
 						var model = deserialize(payload.data);
 						onLoad(model, model.userData);
 						worker.terminate();
+					}
+					else if(payload.type === 'error')
+					{
+						onError(payload.message);
 					}
 				};
 			}
@@ -657,13 +661,19 @@ catch(e){
 	function handleWorkerMessage(evt)
 	{
 		var loader = new THREE.PDBLoader();
-		loader.load(evt.data, function(model)
-		{
-			var serial = serialize(model);
-			var json = serial[0];
-			var buffers = serial[1];
-			postMessage({type: 'model', data: json}, buffers);
-		});
+		loader.load(evt.data,
+			function(model){
+				var serial = serialize(model);
+				var json = serial[0];
+				var buffers = serial[1];
+				postMessage({type: 'model', data: json}, buffers);
+			},
+			null,
+			function(evt){
+				var msg = [evt.target.status, evt.target.statusText, evt.target.responseURL].join(' ');
+				postMessage({type: 'error', message: msg});
+			}
+		);
 	}
 
 	try {

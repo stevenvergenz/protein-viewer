@@ -65,8 +65,14 @@ function loadModel(done)
 			if( /[?&]noball/.test(window.location.search) )
 				return done();
 
+			var localModels = ['2VAA','3UTQ','4X5W','1J8H','1AQD','2WBJ'];
+			if(localModels.indexOf(molId) !== -1)
+				var url = 'models/pdb/'+molId+'.pdb';
+			else
+				var url = 'https://files.rcsb.org/download/'+molId+'.pdb';
+
 			var loader = new THREE.PDBLoader();
-			loader.load('models/pdb/'+molId+'.pdb', function(model)
+			loader.load(url, function(model)
 			{
 				done(null, model);
 			}, null, done);
