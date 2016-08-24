@@ -104,8 +104,12 @@ catch(e){
 				var loader = new THREE.XHRLoader( scope.manager );
 				loader.load( url, function (text)
 				{
+					var t0 = performance.now();
 					var json = scope.parsePDB(text);
 					var model = scope.createStickBallModels(json, options);
+					var t1 = performance.now();
+					window.console.log((t1-t0)+'ms to load');
+
 					onLoad(model, json);
 				}, undefined, onError );
 			}
@@ -164,33 +168,35 @@ catch(e){
 
 			function parseSheet(line)
 			{
-				//              1-6     8      12    15     18    22  23   27   29    33  34   38  39     42    46    50  51   55   57    61    65  66   70
-				var sheetRE = /^SHEET  (.{3}) (.{3})(.{2}) (.{3}) (.)(.{4})(.) (.{3}) (.)(.{4})(.)(.{2}) (.{4})(.{3}) (.)(.{4})(.) (.{4})(.{4}) (.)(.{4})(.)/;
-				var match = sheetRE.exec(line);
-				if(match){
+				if(/^SHEET/.test(line)){
 					return {
-						strand: parseInt(match[1]),
-						sheetID: match[2].trim(),
-						numStrands: parseInt(match[3]),
-						initResName: match[4].trim(),
-						initChainID: match[5].trim(),
-						initSeqNum: parseInt(match[6]),
-						initICode: match[7].trim(),
-						endResName: match[8].trim(),
-						endChainID: match[9].trim(),
-						endSeqNum: parseInt(match[10]),
-						endICode: match[11].trim(),
-						sense: parseInt(match[12]),
-						curAtom: match[13].trim(),
-						curResName: match[14].trim(),
-						curChainID: match[15].trim(),
-						curResSeq: parseInt(match[16]),
-						curICode: match[17].trim(),
-						prevAtom: match[18].trim(),
-						prevResName: match[19].trim(),
-						prevChainID: match[20].trim(),
-						prevResSeq: parseInt(match[21]),
-						prevICode: match[22].trim()
+						strand: parseInt(line.substring(7,10)),
+						sheetID: line.substring(11,14).trim(),
+						numStrands: parseInt(line.substring(14,16)),
+
+						initResName: line.substring(17,20).trim(),
+						initChainID: line.substring(21,22).trim(),
+						initSeqNum: parseInt(line.substring(22,26)),
+						initICode: line.substring(26,27).trim(),
+
+						endResName: line.substring(28,31).trim(),
+						endChainID: line.substring(32,33).trim(),
+						endSeqNum: parseInt(line.substring(33,37)),
+						endICode: line.substring(37,38).trim(),
+
+						sense: parseInt(line.substring(38,40)),
+
+						curAtom: line.substring(41,45).trim(),
+						curResName: line.substring(45,48).trim(),
+						curChainID: line.substring(49,50).trim(),
+						curResSeq: parseInt(line.substring(50,54)),
+						curICode: line.substring(54,55).trim(),
+
+						prevAtom: line.substring(56,60).trim(),
+						prevResName: line.substring(60,63).trim(),
+						prevChainID: line.substring(64,65).trim(),
+						prevResSeq: parseInt(line.substring(65,69)),
+						prevICode: line.substring(69,70).trim()
 					}
 				}
 				else return null;
