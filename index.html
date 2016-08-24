@@ -35,7 +35,6 @@
 			}
 
 			form, form > input {
-				text-align: center;
 				font-size: 24px;
 				color: white;
 				background-color: black;
@@ -105,15 +104,21 @@
 			<a href='?molecule=1AQD' onclick='return navigate("1AQD");' class='item' id='1AQD'>1AQD</a>
 			<a href='?molecule=2WBJ' onclick='return navigate("2WBJ");' class='item' id='2WBJ'>2WBJ</a>
 			<a href='javascript:;' onclick='return toggleCustomDialog();' class='item' id='other'>Other</a>
-			-
-			<a href='javascript:;' onclick='return toggleOption("noribbon");' class='item' id='ribbon'>Structure</a>
-			<a href='javascript:;' onclick='return toggleOption("noball");' class='item' id='ball'>Ball</a>
+			
 		</div>
 		<form onsubmit='return constructUrl(event);' style='display:none;'>
 			<span>Protein Data Bank ID: </span>
 			<input name='mol' type='text'></input>
 			<input type='submit' value='Go'></input>
 		</form>
+		<div class='bar'>
+			<a href='javascript:;' onclick='return toggleOption("noribbon");' class='item' id='ribbon'>Structure</a>
+			<a href='javascript:;' onclick='return toggleOption("noball");' class='item' id='ball'>Ball</a>
+			-
+			<a href='javascript:;' onclick='return toggleOption("color","residue");' class='item' id='residue'>Residue</a>
+			<a href='javascript:;' onclick='return toggleOption("color","struct");' class='item' id='structure'>Secondary Structure</a>
+			<a href='javascript:;' onclick='return toggleOption("color","chain");' class='item' id='chain'>Chain</a>
+		</div>
 		<div style='text-align: center;' id='loading'>
 			<img src='img/benzene.gif' alt='Loading'/>
 			<h1>Loading...</h1>

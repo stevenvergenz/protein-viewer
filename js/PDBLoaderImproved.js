@@ -54,7 +54,7 @@ catch(e){
 
 			var scope = this;
 
-			if(window.Worker)
+			/*if(window.Worker)
 			{
 				window.console.log('spinning up worker');
 				var worker = new Worker('js/PDBLoaderImproved.js');
@@ -77,7 +77,7 @@ catch(e){
 					}
 				};
 			}
-			else
+			else*/
 			{
 				var loader = new THREE.XHRLoader( scope.manager );
 				loader.load( url, function (text)
@@ -92,45 +92,88 @@ catch(e){
 
 		parsePDB: function(text)
 		{
-			function parseChainInfo(line)
+			function parseChain(line)
 			{
-				var chainRE = /^DBREF (.{4}) (.) (.{4})(.) (.{4})(.)/;
+				var chainRE = /^DBREF  (.{4}) (.) (.{4})(.) (.{4})(.) (.{6}) (.{8}) (.{12}) (.{5})(.) (.{5})(.)/;
 				var match = chainRE.exec(line);
 				if(match){
 					return {
 						proteinID: match[1].trim(),
 						chainID: match[2].trim(),
 						seqBegin: parseInt(match[3]),
-						seqEnd: parseInt(match[5])
+						insertBegin: match[4].trim(),
+						seqEnd: parseInt(match[5]),
+						insertEnd: match[6].trim(),
+						database: match[7].trim(),
+						dbAccession: match[8].trim(),
+						dbIdCode: match[9].trim(),
+						dbseqBegin: parseInt(match[10]),
+						idbnsBeg: match[11].trim(),
+						dbseqEnd: parseInt(match[12]),
+						dbinsEnd: match[13].trim()
 					}
 				}
 				else return null;
 			}
 
-			function parseModel(lines)
+			function parseHelix(line)
 			{
-				var modelRE = /^MODEL     (.{4})/;
-				var endmdlRE = /^ENDMDL/;
-
-				// check for start and end tags
-				var match = modelRE.exec(lines[0]);
-				if(match)
-					var modelNum = parseInt(match[1]);
-
-				// load atom list
-				var atoms = [];
-				for(var i=1; i<lines.length-1; i++)
-				{
-					var atom = parseAtom(lines[i]);
-					if(atom) atoms.push(atom);
+				var helixRE = /^HELIX  (.{3}) (.{3}) (.{3}) (.) (.{4})(.) (.{3}) (.) (.{4})(.)(.{2})(.{30}) (.{5})/;
+				var match = helixRE.exec(line);
+				if(match){
+					return {
+						serNum: parseInt(match[1]),
+						helixID: match[2].trim(),
+						initResName: match[3].trim(),
+						initChainID: match[4].trim(),
+						initSeqNum: parseInt(match[5]),
+						initICode: match[6].trim(),
+						endResName: match[7].trim(),
+						endChainID: match[8].trim(),
+						endSeqNum: parseInt(match[9]),
+						endICode: match[10].trim(),
+						helixClass: parseInt(match[11]),
+						comment: match[12].trim(),
+						length: parseInt(match[13])
+					};
 				}
-
-				return {
-					serial: modelNum,
-					atoms: atoms
-				};
+				else return null;
 			}
-
+			
+			function parseSheet(line)
+			{
+				//              1-6     8      12    15     18    22  23   27   29    33  34   38  39     42    46    50  51   55   57    61    65  66   70
+				var sheetRE = /^SHEET  (.{3}) (.{3})(.{2}) (.{3}) (.)(.{4})(.) (.{3}) (.)(.{4})(.)(.{2}) (.{4})(.{3}) (.)(.{4})(.) (.{4})(.{4}) (.)(.{4})(.)/;
+				var match = sheetRE.exec(line);
+				if(match){
+					return {
+						strand: parseInt(match[1]),
+						sheetID: match[2].trim(),
+						numStrands: parseInt(match[3]),
+						initResName: match[4].trim(),
+						initChainID: match[5].trim(),
+						initSeqNum: parseInt(match[6]),
+						initICode: match[7].trim(),
+						endResName: match[8].trim(),
+						endChainID: match[9].trim(),
+						endSeqNum: parseInt(match[10]),
+						endICode: match[11].trim(),
+						sense: parseInt(match[12]),
+						curAtom: match[13].trim(),
+						curResName: match[14].trim(),
+						curChainID: match[15].trim(),
+						curResSeq: parseInt(match[16]),
+						curICode: match[17].trim(),
+						prevAtom: match[18].trim(),
+						prevResName: match[19].trim(),
+						prevChainID: match[20].trim(),
+						prevResSeq: parseInt(match[21]),
+						prevICode: match[22].trim()
+					}
+				}
+				else return null;
+			}
+			
 			function parseAtom(line)
 			{
 				var atomRE = /^(?:HETATM|ATOM  )(.{5}) (.{4})(.)(.{3}) (.)(.{4})(.)   (.{8})(.{8})(.{8})(.{6})(.{6})          (.{2})(.{2})$/;
@@ -143,19 +186,19 @@ catch(e){
 					return {
 						type: match[0].slice(0,6).trim(),
 						serial: parseInt(fields[0]),
-						name: fields[1],
-						altLoc: fields[2],
-						resName: fields[3],
-						chainID: fields[4],
-						resSeq: fields[5],
-						iCode: fields[6],
+						name: fields[1].trim(),
+						altLoc: fields[2].trim(),
+						resName: fields[3].trim(),
+						chainID: fields[4].trim(),
+						resSeq: fields[5].trim(),
+						iCode: fields[6].trim(),
 						x: parseFloat(fields[7]),
 						y: parseFloat(fields[8]),
 						z: parseFloat(fields[9]),
 						occupancy: parseFloat(fields[10]),
 						tempFactor: parseFloat(fields[11]),
-						element: fields[12],
-						charge: fields[13]
+						element: fields[12].trim(),
+						charge: fields[13].trim()
 					};
 				}
 
@@ -185,8 +228,34 @@ catch(e){
 				lines = text.split('\n');
 
 			var cursor = 0;
-			var data = {};
+			var data = {
+				atoms: [],
+				bonds: [],
+				chains: [],
+				helixes: [],
+				sheets: []
+			};
+			var endmdlFlag = false;
 
+			for(var i=0; i<lines.length; i++)
+			{
+				var result = null;
+				if(result = parseChain(lines[i]))
+					data.chains.push(result);
+				else if(result = parseHelix(lines[i]))
+					data.helixes.push(result);
+				else if(result = parseSheet(lines[i]))
+					data.sheets.push(result);
+				else if(/^ENDMDL/.test(lines[i]))
+					endmdlFlag = true;
+				else if(!endmdlFlag && (result = parseAtom(lines[i])))
+					data.atoms.push(result);
+				else if(result = parseBond(lines[i]))
+					data.bonds.push(result);
+			}
+			
+			/*// check for DBREFs
+			
 			// check for MODELs
 			var start, end;
 			for(var i=cursor; i<lines.length; i++){
@@ -214,12 +283,13 @@ catch(e){
 				.map(function(e){ return parseBond(e); })
 				.filter(function(e){ return !!e; });
 
-			data.bonds = bonds;
+			data.bonds = bonds;*/
 
+			console.log(data);
 			return data;
 		},
 
-		createStickBallModels: function(json, options)
+		createStickBallModels: function(molecule, options)
 		{
 			// define default options
 			options = options || {};
@@ -228,8 +298,6 @@ catch(e){
 			options.bondFudgeFactor = options.bondFudgeFactor || 0.16;
 			options.verbose = options.verbose !== undefined ? options.verbose : true;
 			options.atomCutoff = options.atomCutoff || 14000;
-
-			var molecule = json.model;
 
 			if(molecule.atoms.length > options.atomCutoff){
 				console.error(molecule.atoms.length+' atoms is too large to render, aborting.');
@@ -345,7 +413,7 @@ catch(e){
 			});
 
 			// generate manual bonds
-			json.bonds.forEach(function(bond)
+			molecule.bonds.forEach(function(bond)
 			{
 				for(var i=1; bond['bond'+i] && i<=4; i++)
 				{
@@ -436,7 +504,7 @@ catch(e){
 			// convert finished model into buffer geometry
 			// may as well, we're not changing it
 			var model = new THREE.Object3D();
-			model.userData = json;
+			model.userData = molecule;
 
 			outputMeshes.forEach(function(mesh1)
 			{
