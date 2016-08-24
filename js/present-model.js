@@ -39,11 +39,19 @@ function loadModel(done)
 		'1J8H': new THREE.Matrix4().fromArray([0.016748936846852303, 0, 0, 0, 0, 0.016748936846852303, 0, 0, 0, 0, 0.016748936846852303, 0, 0, 0, 0.8999999761581421, 1])
 	};
 
+	// highlight active options
 	if(!/[?&]noribbon/.test(window.location.search))
 		document.getElementById('ribbon').style.color = '#87ceeb';
 	if(!/[?&]noball/.test(window.location.search))
 		document.getElementById('ball').style.color = '#87ceeb';
 
+	var colorMatch = /[&?]color=(residue|structure|chain)/.exec(window.location.search);
+	if(!colorMatch)
+		document.getElementById('nocolor').style.color = '#87ceeb';
+	else
+		document.getElementById(colorMatch[1]).style.color = '#87ceeb';
+
+	// highlight active molecule
 	var molId = /[?&]molecule=(\w+)/.exec(window.location.search);
 	if(!molId){
 		document.getElementById('loading').style.display = 'none';
@@ -53,7 +61,10 @@ function loadModel(done)
 	molId = molId[1];
 
 	var menuItem = document.getElementById(molId);
-	if(menuItem) menuItem.style.color = '#87ceeb';
+	if(menuItem)
+		menuItem.style.color = '#87ceeb';
+	else
+		document.getElementById('other').style.color = '#87ceeb';
 
 	var molecule = new THREE.Object3D();
 
@@ -72,7 +83,7 @@ function loadModel(done)
 				var url = 'https://files.rcsb.org/download/'+molId+'.pdb';
 
 			var loader = new THREE.PDBLoader();
-			loader.load(url, function(model)
+			loader.load(url, {colorScheme: colorMatch && colorMatch[1]}, function(model)
 			{
 				done(null, model);
 			}, null, done);

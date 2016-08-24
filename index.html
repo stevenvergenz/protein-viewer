@@ -18,7 +18,7 @@
 
 			.item {
 				display: inline-block;
-				padding: 5px 10px;
+				padding: 5px;
 
 
 				background-color: black;
@@ -61,11 +61,17 @@
 				return false;
 			}
 
-			function toggleOption(option){
+			function toggleOption(option, value){
 				var path = window.location.search;
-				var re = new RegExp('[&?]'+option);
-				if( re.test(path) )
-					path = path.replace(re, '');
+				var re = new RegExp('[&?]'+option+'(?:=([^&]+))?');
+				var match = re.exec(path);
+
+				if( match && value === undefined)
+					path = path.replace(match[0], '');
+				else if(match && value !== undefined)
+					path = path.replace(match[1], value);
+				else if(value !== undefined)
+					path += '&'+option+'='+value;
 				else
 					path += '&'+option;
 
@@ -115,11 +121,12 @@
 			Show:
 			<a href='javascript:;' onclick='return toggleOption("noribbon");' class='item' id='ribbon'>Structure</a>
 			<a href='javascript:;' onclick='return toggleOption("noball");' class='item' id='ball'>Ball</a>
-			-
-			Color by:
+			|
+			Color:
 			<a href='javascript:;' onclick='return toggleOption("color","residue");' class='item' id='residue'>Residue</a>
-			<a href='javascript:;' onclick='return toggleOption("color","struct");' class='item' id='structure'>Secondary Structure</a>
+			<a href='javascript:;' onclick='return toggleOption("color","structure");' class='item' id='structure'>Structure</a>
 			<a href='javascript:;' onclick='return toggleOption("color","chain");' class='item' id='chain'>Chain</a>
+			<a href='javascript:;' onclick='return toggleOption("color");' class='item' id='nocolor'>None</a>
 		</div>
 		<div style='text-align: center;' id='loading'>
 			<img src='img/benzene.gif' alt='Loading'/>

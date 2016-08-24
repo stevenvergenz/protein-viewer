@@ -67,15 +67,20 @@ catch(e){
 
 		constructor: THREE.PDBLoader,
 
-		load: function ( url, onLoad, onProgress, onError ) {
+		load: function ( url, options, onLoad, onProgress, onError ) {
 
 			var scope = this;
 
-			/*if(window.Worker)
+			if(window.Worker)
 			{
 				window.console.log('spinning up worker');
 				var worker = new Worker('js/PDBLoaderImproved.js');
-				worker.postMessage(/^http/.test(url) ? url : '../'+url);
+
+				worker.postMessage({
+					url: /^http/.test(url) ? url : '../'+url,
+					options: options
+				});
+
 				worker.onmessage = function(msg)
 				{
 					var payload = msg.data;
@@ -94,13 +99,13 @@ catch(e){
 					}
 				};
 			}
-			else*/
+			else
 			{
 				var loader = new THREE.XHRLoader( scope.manager );
 				loader.load( url, function (text)
 				{
 					var json = scope.parsePDB(text);
-					var model = scope.createStickBallModels(json, null);
+					var model = scope.createStickBallModels(json, options);
 					onLoad(model, json);
 				}, undefined, onError );
 			}
@@ -271,7 +276,6 @@ catch(e){
 					data.bonds.push(result);
 			}
 
-			console.log(data);
 			return data;
 		},
 
@@ -283,7 +287,7 @@ catch(e){
 			options.bondFudgeFactor = options.bondFudgeFactor || 0.16;
 			options.verbose = options.verbose !== undefined ? options.verbose : true;
 			options.atomCutoff = options.atomCutoff || 14000;
-			options.colorScheme = ['residue','structure','chain','none'].indexOf(options.colorScheme) > -1 ? options.colorSchme : 'none';
+			options.colorScheme = ['residue','structure','chain','none'].indexOf(options.colorScheme) > -1 ? options.colorScheme : 'none';
 
 			if(molecule.atoms.length > options.atomCutoff){
 				console.error(molecule.atoms.length+' atoms is too large to render, aborting.');
@@ -794,8 +798,9 @@ catch(e){
 
 	function handleWorkerMessage(evt)
 	{
+		var data = evt.data
 		var loader = new THREE.PDBLoader();
-		loader.load(evt.data,
+		loader.load(data.url, data.options,
 			function(model){
 				var serial = serialize(model);
 				var json = serial[0];
