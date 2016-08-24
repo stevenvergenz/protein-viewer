@@ -22,25 +22,42 @@ catch(e){
 
 (function(THREE)
 {
+	var covalentRadius = {h:31, he:28, li:128, be:96, b:84, c:73, n:71, o:66, f:57, na:166, mg:141, al:121, si:111, p:107, s:105, cl:102, k:203, ca:176, sc:170, ti:160, v:153, cr:139, mn:139, fe:132, co:126, ni:124, cu:132, zn:122, ga:122, ge:120, as:119, se:120, br:120};
+
 	// atomic colors
 	var CPK = {"h":16777215,"he":14286847,"li":13402367,"be":12779264,"b":16758197,"c":9474192,"n":3166456,"o":16715021,"f":9494608,"ne":11789301,"na":11230450,"mg":9109248,"al":12560038,"si":15780000,"p":16744448,"s":16777008,"cl":2093087,"ar":8442339,"k":9388244,"ca":4062976,"sc":15132390,"ti":12567239,"v":10921643,"cr":9083335,"mn":10255047,"fe":14706227,"co":15765664,"ni":5296208,"cu":13140019,"zn":8224944,"ga":12750735,"ge":6721423,"as":12419299,"se":16752896,"br":10889513,"kr":6076625,"rb":7351984,"sr":65280,"y":9764863,"zr":9756896,"nb":7586505,"mo":5551541,"tc":3907230,"ru":2396047,"rh":687500,"pd":27013,"ag":12632256,"cd":16767375,"in":10909043,"sn":6717568,"sb":10380213,"te":13924864,"i":9699476,"xe":4366000,"cs":5707663,"ba":51456,"la":7394559,"ce":16777159,"pr":14286791,"nd":13107143,"pm":10747847,"sm":9437127,"eu":6422471,"gd":4587463,"tb":3211207,"dy":2097095,"ho":65436,"er":58997,"tm":54354,"yb":48952,"lu":43812,"hf":5096191,"ta":5089023,"w":2200790,"re":2522539,"os":2516630,"ir":1528967,"pt":13684960,"au":16765219,"hg":12105936,"tl":10900557,"pb":5724513,"bi":10375093,"po":11230208,"at":7688005,"rn":4358806,"fr":4325478,"ra":32000,"ac":7384058,"th":47871,"pa":41471,"u":36863,"np":33023,"pu":27647,"am":5528818,"cm":7888099,"bk":9064419,"cf":10565332,"es":11739092,"fm":11739066,"md":11734438,"no":12389767,"lr":13041766,"rf":13369433,"db":13697103,"sg":14221381,"bh":14680120,"hs":15073326,"mt":15400998,"ds":15400998,"rg":15400998,"cn":15400998,"uut":15400998,"uuq":15400998,"uup":15400998,"uuh":15400998,"uus":15400998,"uuo":15400998};
 
-	var covalentRadius = {h:31, he:28, li:128, be:96, b:84, c:73, n:71, o:66, f:57, na:166, mg:141, al:121, si:111, p:107, s:105, cl:102, k:203, ca:176, sc:170, ti:160, v:153, cr:139, mn:139, fe:132, co:126, ni:124, cu:132, zn:122, ga:122, ge:120, as:119, se:120, br:120};
+	// amino acid residue colors
+	var residueColors = {
+		ASP: 0xe60a0a, GLU: 0xe60a0a, // bright red
+		CYS: 0xe6e600, MET: 0xe6e600, // yellow
+		LYS: 0x145aff, ARG: 0x145aff, // blue
+		SER: 0xfa9600, THR: 0xfa9600, // orange
+		PHE: 0x3232aa, TYR: 0x3232aa, // mid blue
+		ASN: 0x00dcdc, GLN: 0x00dcdc, // cyan
+		GLY: 0xebebeb, // light grey
+		LEU: 0x0f820f, VAL: 0x0f820f, ILE: 0x0f820f, // green
+		ALA: 0xc8c8c8, // dark grey
+		TRP: 0xb45ab4, // pink
+		HIS: 0x8282d2, //pale blue
+		PRO: 0xdc9682 // flesh
+	};
 
-	function throttle(callback, timeout)
-	{
-		timeout = timeout || 20;
-		var wait = false;
-		return function(){
-			if(!wait){
-				callback.apply(undefined, arguments);
-				wait = true;
-				setTimeout(function(){
-					wait = false;
-				}, timeout);
-			}
-		};
-	}
+	// chain colors:  blue, red,      grey,    orange,   yellow,   tan,     silver,   green, white,    pink,     cyan,    purple,   lime
+	var chainColors = [255, 16711680, 5855577, 16744192, 16776960, 8355635, 10066329, 65280, 16777215, 16751001, 4177855, 10813605, 8381798];
+
+	// structure colors:
+	var structureColors = {
+		helix: {
+			default: 10813605, // purple
+			1: 10813605, // purple
+			5: 255, // blue
+			3: 16711680 // red
+		},
+		sheet: 8381798, // lime
+		other: 16777215 // white
+	};
+
 
 	THREE.PDBLoader = function ( manager ) {
 		this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
@@ -139,7 +156,7 @@ catch(e){
 				}
 				else return null;
 			}
-			
+
 			function parseSheet(line)
 			{
 				//              1-6     8      12    15     18    22  23   27   29    33  34   38  39     42    46    50  51   55   57    61    65  66   70
@@ -173,7 +190,7 @@ catch(e){
 				}
 				else return null;
 			}
-			
+
 			function parseAtom(line)
 			{
 				var atomRE = /^(?:HETATM|ATOM  )(.{5}) (.{4})(.)(.{3}) (.)(.{4})(.)   (.{8})(.{8})(.{8})(.{6})(.{6})          (.{2})(.{2})$/;
@@ -190,7 +207,7 @@ catch(e){
 						altLoc: fields[2].trim(),
 						resName: fields[3].trim(),
 						chainID: fields[4].trim(),
-						resSeq: fields[5].trim(),
+						resSeq: parseInt(fields[5]),
 						iCode: fields[6].trim(),
 						x: parseFloat(fields[7]),
 						y: parseFloat(fields[8]),
@@ -253,37 +270,6 @@ catch(e){
 				else if(result = parseBond(lines[i]))
 					data.bonds.push(result);
 			}
-			
-			/*// check for DBREFs
-			
-			// check for MODELs
-			var start, end;
-			for(var i=cursor; i<lines.length; i++){
-				if(start !== undefined && /^ENDMDL/.test(lines[i])){
-					end = i;
-					break;
-				}
-				else if(/^MODEL/.test(lines[i]))
-					start = i;
-			}
-
-			if( start !== undefined && end !== undefined ){
-				data.model = parseModel( lines.slice(cursor+start, cursor+end+1) );
-				cursor += end+1;
-			}
-			// load all atoms into one model if no MODEL/ENDMDL tags
-			else
-			{
-				data.model = parseModel( lines );
-			}
-
-			// load manual connections
-			var bonds = lines
-				.slice(cursor)
-				.map(function(e){ return parseBond(e); })
-				.filter(function(e){ return !!e; });
-
-			data.bonds = bonds;*/
 
 			console.log(data);
 			return data;
@@ -293,11 +279,11 @@ catch(e){
 		{
 			// define default options
 			options = options || {};
-			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : true;
 			options.meshVertexLimit = options.meshVertexLimit || 65000;
 			options.bondFudgeFactor = options.bondFudgeFactor || 0.16;
 			options.verbose = options.verbose !== undefined ? options.verbose : true;
 			options.atomCutoff = options.atomCutoff || 14000;
+			options.colorScheme = ['residue','structure','chain','none'].indexOf(options.colorScheme) > -1 ? options.colorSchme : 'none';
 
 			if(molecule.atoms.length > options.atomCutoff){
 				console.error(molecule.atoms.length+' atoms is too large to render, aborting.');
@@ -305,20 +291,15 @@ catch(e){
 			}
 
 			var outputMeshes = [];
-			var atomMap = {};
-			var bondMap = {};
+			var meshMap = {};
+			var bondConnectivityMap = {};
+			var materialMap = {};
 
 			var bounds = new THREE.Box3();
 
-			var stick = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true), new THREE.MeshBasicMaterial({color: 0xffffff}));
-			stick.geometry.rotateX(Math.PI/2);
+			var stickGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true);
+			stickGeometry.rotateX(Math.PI/2);
 			var ballGeometry = new THREE.BoxGeometry(0.3,0.3,0.3);
-
-			var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-			bonds.name = 'bonds';
-			if(options.mergeLikeAtoms)
-				outputMeshes.push(bonds);
-
 
 			// loop over all atoms in the molecule
 			molecule.atoms.forEach(function(atom, i)
@@ -327,18 +308,19 @@ catch(e){
 				* Generate atom balls
 				*/
 				var e = atom.element.toLowerCase();
+				var color = CPK[e];
 
 				// index materials and/or meshes
-				if(!atomMap[e])
+				if(!meshMap[color])
 				{
-					atomMap[e] = new THREE.Mesh(new THREE.Geometry(), new THREE.MeshBasicMaterial({color: CPK[e]}));
-					atomMap[e].name = e+'_group';
-					if(options.mergeLikeAtoms)
-						outputMeshes.push(atomMap[e]);
+					if(!materialMap[color])
+						materialMap[color] = new THREE.MeshBasicMaterial({color: color});
+
+					meshMap[color] = new THREE.Mesh(new THREE.Geometry(), materialMap[color]);
+					outputMeshes.push(meshMap[color]);
 				}
 
-				var mesh = new THREE.Mesh(ballGeometry, atomMap[e].material);
-				mesh.name = 'atom_'+atom.serial;
+				var mesh = new THREE.Mesh(ballGeometry, materialMap[color]);
 
 				// position in angstroms
 				mesh.position.set(atom.x, atom.y, atom.z);
@@ -348,18 +330,13 @@ catch(e){
 				bounds.expandByPoint(mesh.position);
 
 				// add to molecule
-				if(options.mergeLikeAtoms)
+				if(meshMap[color].geometry.faces.length*3 + mesh.geometry.faces.length*3 > options.meshVertexLimit)
 				{
-					if(atomMap[e].geometry.faces.length*3 + mesh.geometry.faces.length*3 > options.meshVertexLimit)
-					{
-						atomMap[e] = new THREE.Mesh(new THREE.Geometry(), atomMap[e].material);
-						outputMeshes.push(atomMap[e]);
-					}
-
-					atomMap[e].geometry.mergeMesh(mesh);
+					meshMap[color] = new THREE.Mesh(new THREE.Geometry(), materialMap[color]);
+					outputMeshes.push(meshMap[color]);
 				}
-				else
-					outputMeshes.push(mesh);
+
+				meshMap[color].geometry.mergeMesh(mesh);
 
 
 				/*
@@ -386,28 +363,73 @@ catch(e){
 					if( Math.abs(dist - covalentDist) <= options.bondFudgeFactor*covalentDist )
 					{
 						// add to bond map
-						if(bondMap[i]) bondMap[i].push(j);
-						else bondMap[i] = [j];
+						if(bondConnectivityMap[i]) bondConnectivityMap[i].push(j);
+						else bondConnectivityMap[i] = [j];
+
+						// determine color of bond
+						var bondColor = structureColors.other;
+
+						// color by chain
+						if(options.colorScheme === 'chain')
+						{
+							for(var chainIndex = 0; chainIndex < molecule.chains.length; chainIndex++){
+								if(molecule.chains[chainIndex].chainID === atom.chainID)
+									break;
+							}
+							bondColor = chainColors[chainIndex];
+						}
+
+						// color by structure
+						else if(options.colorScheme === 'structure')
+						{
+							var found = false;
+
+							// check for helix
+							for(var helixIndex = 0; !found && helixIndex < molecule.helixes.length; helixIndex++)
+							{
+								var h = molecule.helixes[helixIndex];
+								if(atom.chainID === h.initChainID && atom.resSeq >= h.initSeqNum && atom.resSeq <= h.endSeqNum
+									&& neighbor.chainID === h.initChainID && neighbor.resSeq >= h.initSeqNum && neighbor.resSeq <= h.endSeqNum){
+									bondColor = structureColors.helix[h.helixClass] || structureColors.helix.default;
+									found = true;
+								}
+							}
+
+							// check for sheets
+							for(var sheetIndex = 0; !found && sheetIndex < molecule.sheets.length; sheetIndex++)
+							{
+								var s = molecule.sheets[sheetIndex];
+								if(atom.chainID === s.initChainID && atom.resSeq >= s.initSeqNum && atom.resSeq <= s.endSeqNum
+									&& neighbor.chainID === s.initChainID && neighbor.resSeq >= s.initSeqNum && neighbor.resSeq <= s.endSeqNum){
+									bondColor = structureColors.sheet;
+									found = true;
+								}
+							}
+						}
+
+						// color by residue
+						else if(options.colorScheme === 'residue' && atom.resSeq === neighbor.resSeq){
+							bondColor = residueColors[atom.resName];
+						}
+
+						if(!materialMap[bondColor])
+							materialMap[bondColor] = new THREE.MeshBasicMaterial({color: bondColor});
 
 						// generate stick
 						var start = mesh.position, end = v2;
+						var stick = new THREE.Mesh(stickGeometry, materialMap[bondColor]);
 						stick.position.copy( start );
 						stick.position.lerp( end, 0.5 );
 						stick.scale.setZ( start.distanceTo( end ) );
 						stick.lookAt( end );
 
-						if(options.mergeLikeAtoms)
+						if(!meshMap[bondColor] || meshMap[bondColor].geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
 						{
-							if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
-							{
-								bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-								outputMeshes.push(bonds);
-							}
-
-							bonds.geometry.mergeMesh(stick);
+							meshMap[bondColor] = new THREE.Mesh(new THREE.Geometry(), materialMap[bondColor]);
+							outputMeshes.push(meshMap[bondColor]);
 						}
-						else
-							outputMeshes.push( stick.clone() );
+
+						meshMap[bondColor].geometry.mergeMesh(stick);
 					}
 				}
 			});
@@ -428,11 +450,60 @@ catch(e){
 					var vb = new THREE.Vector3(ab.x, ab.y, ab.z);
 					//console.log('manual bond length: '+va.distanceTo(vb));
 
-					if( (!bondMap[a] || bondMap[a].indexOf(b) === -1) && va.distanceTo(vb) <= 7 )
+					if( (!bondConnectivityMap[a] || bondConnectivityMap[a].indexOf(b) === -1) && va.distanceTo(vb) <= 7 )
 					{
 						// add to bond map
-						bondMap[a] = bondMap[a] || [];
-						bondMap[a].push(b);
+						bondConnectivityMap[a] = bondConnectivityMap[a] || [];
+						bondConnectivityMap[a].push(b);
+
+						// determine color of bond
+						var bondColor = structureColors.other;
+
+						// color by chain
+						if(options.colorScheme === 'chain')
+						{
+							for(var chainIndex = 0; chainIndex < molecule.chains.length; chainIndex++){
+								if(molecule.chains[chainIndex].chainID === aa.chainID)
+									break;
+							}
+							bondColor = chainColors[chainIndex];
+						}
+
+						// color by structure
+						else if(options.colorScheme === 'structure')
+						{
+							var found = false;
+
+							// check for helix
+							for(var helixIndex = 0; !found && helixIndex < molecule.helixes.length; helixIndex++)
+							{
+								var h = molecule.helixes[helixIndex];
+								if(aa.chainID === h.initChainID && aa.resSeq >= h.initSeqNum && aa.resSeq <= h.endSeqNum
+									&& ab.chainID === h.initChainID && ab.resSeq >= h.initSeqNum && ab.resSeq <= h.endSeqNum){
+									bondColor = structureColors.helix[h.helixClass] || structureColors.helix.default;
+									found = true;
+								}
+							}
+
+							// check for sheets
+							for(var sheetIndex = 0; !found && sheetIndex < molecule.sheets.length; sheetIndex++)
+							{
+								var s = molecule.sheets[sheetIndex];
+								if(aa.chainID === s.initChainID && aa.resSeq >= s.initSeqNum && aa.resSeq <= s.endSeqNum
+									&& ab.chainID === s.initChainID && ab.resSeq >= s.initSeqNum && ab.resSeq <= s.endSeqNum){
+									bondColor = structureColors.sheet;
+									found = true;
+								}
+							}
+						}
+
+						// color by residue
+						else if(options.colorScheme === 'residue' && aa.resSeq === ab.resSeq){
+							bondColor = residueColors[aa.resName];
+						}
+
+						if(!materialMap[bondColor])
+							materialMap[bondColor] = new THREE.MeshBasicMaterial({color: bondColor});
 
 						// generate stick
 						stick.position.copy( va );
@@ -440,18 +511,13 @@ catch(e){
 						stick.scale.setZ( va.distanceTo( vb ) );
 						stick.lookAt( vb );
 
-						if(options.mergeLikeAtoms)
+						if(!meshMap[bondColor] || meshMap[bondColor].geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
 						{
-							if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
-							{
-								bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-								outputMeshes.push(bonds);
-							}
-
-							bonds.geometry.mergeMesh(stick);
+							meshMap[bondColor] = new THREE.Mesh(new THREE.Geometry(), materialMap[bondColor]);
+							outputMeshes.push(meshMap[bondColor]);
 						}
-						else
-							outputMeshes.push( stick.clone() );
+
+						meshMap[bondColor].geometry.mergeMesh(stick);
 					}
 				}
 			});
@@ -479,11 +545,11 @@ catch(e){
 					bondCount[i] = 0;
 				});
 
-				for(var i in bondMap)
+				for(var i in bondConnectivityMap)
 				{
-					bondCount[i] += bondMap[i].length;
-					for(var j=0; j<bondMap[i].length; j++){
-						bondCount[ bondMap[i][j] ] += 1;
+					bondCount[i] += bondConnectivityMap[i].length;
+					for(var j=0; j<bondConnectivityMap[i].length; j++){
+						bondCount[ bondConnectivityMap[i][j] ] += 1;
 					}
 				}
 
