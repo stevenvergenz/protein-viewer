@@ -104,10 +104,10 @@ catch(e){
 				var loader = new THREE.XHRLoader( scope.manager );
 				loader.load( url, function (text)
 				{
-					var t0 = performance.now();
+					var t0 = Date.now();
 					var json = scope.parsePDB(text);
 					var model = scope.createStickBallModels(json, options);
-					var t1 = performance.now();
+					var t1 = Date.now();
 					window.console.log((t1-t0)+'ms to load');
 
 					onLoad(model, json);
