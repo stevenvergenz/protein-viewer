@@ -49,21 +49,47 @@
 
 		<script>
 
-			function toggleOption(option, value){
+			function toggleOptions(option, value)
+			{
+				function toggleOption(path, option, value)
+				{
+					var re = new RegExp('[&?]'+option+'(?:=([^&]+))?');
+					var match = re.exec(path);
+
+					if(match)
+					{
+						// remove option
+						if(value === undefined || value === false)
+							path = path.replace(match[0], '');
+						// replace existing option unless new value is boolean
+						else if(value !== true)
+							path = path.replace(match[1], value);
+					}
+					else
+					{
+						// add boolean option
+						if(value === undefined || value === true)
+							path += '&'+option;
+						// add key/value option
+						else if(value !== false)
+							path += '&'+option+'='+value;
+					}
+
+					path = '?' + path.slice(1);
+					return path;
+				}
+
 				var path = window.location.search;
-				var re = new RegExp('[&?]'+option+'(?:=([^&]+))?');
-				var match = re.exec(path);
-
-				if( match && value === undefined)
-					path = path.replace(match[0], '');
-				else if(match && value !== undefined)
-					path = path.replace(match[1], value);
-				else if(value !== undefined)
-					path += '&'+option+'='+value;
+				if(option instanceof Object){
+					for(var i in option){
+						path = toggleOption(path, i, option[i]);
+					}
+				}
 				else
-					path += '&'+option;
+				{
+					path = toggleOption(path, option, value);
+				}
 
-				path = '?' + path.slice(1);
 				window.location.replace(path);
 				return false;
 			}
@@ -82,21 +108,20 @@
 			}
 
 			function constructUrl(evt){
-				var data = new FormData(evt.target);
-				return navigate(data.get('mol').toUpperCase(), {noribbon: true, noball: false});
+				return toggleOptions({molecule: evt.target[0].value.toUpperCase(), noribbon: true, noball: false});
 			}
 
 		</script>
 	</head>
 	<body>
 		<div class='bar'>
-			<a href='?molecule=2VAA' onclick='return toggleOption("molecule","2VAA");' class='item' id='2VAA'>2VAA</a>
-			<a href='?molecule=3UTQ' onclick='return toggleOption("molecule","3UTQ");' class='item' id='3UTQ'>3UTQ</a>
-			<a href='?molecule=4X5W' onclick='return toggleOption("molecule","4X5W");' class='item' id='4X5W'>4X5W</a>
-			<a href='?molecule=3WPG' onclick='return toggleOption("molecule","3WPG");' class='item' id='3WPG'>3WPG</a>
-			<a href='?molecule=1J8H' onclick='return toggleOption("molecule","1J8H");' class='item' id='1J8H'>1J8H</a>
-			<a href='?molecule=1AQD' onclick='return toggleOption("molecule","1AQD");' class='item' id='1AQD'>1AQD</a>
-			<a href='?molecule=2WBJ' onclick='return toggleOption("molecule","2WBJ");' class='item' id='2WBJ'>2WBJ</a>
+			<a href='?molecule=2VAA' onclick='return toggleOptions("molecule","2VAA");' class='item' id='2VAA'>2VAA</a>
+			<a href='?molecule=3UTQ' onclick='return toggleOptions("molecule","3UTQ");' class='item' id='3UTQ'>3UTQ</a>
+			<a href='?molecule=4X5W' onclick='return toggleOptions("molecule","4X5W");' class='item' id='4X5W'>4X5W</a>
+			<a href='?molecule=3WPG' onclick='return toggleOptions("molecule","3WPG");' class='item' id='3WPG'>3WPG</a>
+			<a href='?molecule=1J8H' onclick='return toggleOptions("molecule","1J8H");' class='item' id='1J8H'>1J8H</a>
+			<a href='?molecule=1AQD' onclick='return toggleOptions("molecule","1AQD");' class='item' id='1AQD'>1AQD</a>
+			<a href='?molecule=2WBJ' onclick='return toggleOptions("molecule","2WBJ");' class='item' id='2WBJ'>2WBJ</a>
 			<a href='javascript:;' onclick='return toggleCustomDialog();' class='item' id='other'>Other</a>
 
 		</div>
@@ -107,14 +132,14 @@
 		</form>
 		<div class='bar'>
 			Show:
-			<a href='javascript:;' onclick='return toggleOption("noribbon");' class='item' id='ribbon'>Structure</a>
-			<a href='javascript:;' onclick='return toggleOption("noball");' class='item' id='ball'>Ball</a>
+			<a href='javascript:;' onclick='return toggleOptions("noribbon");' class='item' id='ribbon'>Structure</a>
+			<a href='javascript:;' onclick='return toggleOptions("noball");' class='item' id='ball'>Ball</a>
 			|
 			Color:
-			<a href='javascript:;' onclick='return toggleOption("color","residue");' class='item' id='residue'>Residue</a>
-			<a href='javascript:;' onclick='return toggleOption("color","structure");' class='item' id='structure'>Structure</a>
-			<a href='javascript:;' onclick='return toggleOption("color","chain");' class='item' id='chain'>Chain</a>
-			<a href='javascript:;' onclick='return toggleOption("color");' class='item' id='nocolor'>None</a>
+			<a href='javascript:;' onclick='return toggleOptions("color","residue");' class='item' id='residue'>Residue</a>
+			<a href='javascript:;' onclick='return toggleOptions("color","structure");' class='item' id='structure'>Structure</a>
+			<a href='javascript:;' onclick='return toggleOptions("color","chain");' class='item' id='chain'>Chain</a>
+			<a href='javascript:;' onclick='return toggleOptions("color");' class='item' id='nocolor'>None</a>
 		</div>
 		<div style='text-align: center;' id='loading'>
 			<img src='img/benzene.gif' alt='Loading'/>
