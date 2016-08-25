@@ -516,6 +516,7 @@ catch(e){
 							materialMap[bondColor] = new THREE.MeshBasicMaterial({color: bondColor});
 
 						// generate stick
+						var stick = new THREE.Mesh(stickGeometry, materialMap[bondColor]);
 						stick.position.copy( va );
 						stick.position.lerp( vb, 0.5 );
 						stick.scale.setZ( va.distanceTo( vb ) );
