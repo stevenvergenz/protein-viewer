@@ -63,8 +63,11 @@ function loadModel(done)
 	var menuItem = document.getElementById(molId);
 	if(menuItem)
 		menuItem.style.color = '#87ceeb';
-	else
+	else {
 		document.getElementById('other').style.color = '#87ceeb';
+		document.getElementById('ribbon').style['pointer-events'] = 'none';
+		document.getElementById('ribbon').style.color = '#333';
+	}
 
 	var molecule = new THREE.Object3D();
 
