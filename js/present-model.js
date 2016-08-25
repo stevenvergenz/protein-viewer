@@ -153,7 +153,7 @@ function loadModel(done)
 				{
 					var radius = Utils.computeObjectRadius(model);
 					model.scale.multiplyScalar(1.0/radius);
-					model.position.set(0, 0, 0.8);
+					model.position.set(0, 0, 1.0);
 				}
 
 				done(null, model);

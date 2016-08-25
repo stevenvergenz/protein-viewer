@@ -9,14 +9,14 @@ try {
 	window.THREE = window.THREE || {};
 }
 catch(e){
-	var window = {
-		THREE: self.THREE,
-		console: {
-			log: function(){
-				self.postMessage({type: 'log', message: Array.prototype.slice.call(arguments).join(' ')});
-			}
+	self.console = {
+		log: function(){
+			self.postMessage({type: 'log', message: Array.prototype.slice.call(arguments).join(' ')});
 		}
 	};
+	console.warn = console.log;
+	console.error = console.log;
+	var window = self;
 }
 
 
@@ -71,9 +71,9 @@ catch(e){
 
 			var scope = this;
 
-			if(window.Worker)
+			if(window.Worker /*&& false */)
 			{
-				window.console.log('spinning up worker');
+				console.log('spinning up worker');
 				var worker = new Worker('js/PDBLoaderImproved.js');
 
 				worker.postMessage({
@@ -108,7 +108,7 @@ catch(e){
 					var json = scope.parsePDB(text);
 					var model = scope.createStickBallModels(json, options);
 					var t1 = Date.now();
-					window.console.log((t1-t0)+'ms to load');
+					console.log((t1-t0)+'ms to load');
 
 					onLoad(model, json);
 				}, undefined, onError );
@@ -307,7 +307,7 @@ catch(e){
 
 			var bounds = new THREE.Box3();
 
-			var stickGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true);
+			var stickGeometry = new THREE.CylinderGeometry(0.07, 0.07, 1, 3, 1, true);
 			stickGeometry.rotateX(Math.PI/2);
 			var ballGeometry = new THREE.BoxGeometry(0.3,0.3,0.3);
 
@@ -458,7 +458,6 @@ catch(e){
 
 					var va = new THREE.Vector3(aa.x, aa.y, aa.z);
 					var vb = new THREE.Vector3(ab.x, ab.y, ab.z);
-					//console.log('manual bond length: '+va.distanceTo(vb));
 
 					if( (!bondConnectivityMap[a] || bondConnectivityMap[a].indexOf(b) === -1) && va.distanceTo(vb) <= 7 )
 					{
@@ -535,7 +534,7 @@ catch(e){
 
 			// calculate geometry offset
 			var offset = bounds.center().negate();
-			window.console.log('pdb offset: '+offset.toArray());
+			console.log('pdb offset: '+offset.toArray());
 			outputMeshes.forEach(function(m){
 				m.geometry.translate(offset.x, offset.y, offset.z);
 			});
@@ -546,7 +545,7 @@ catch(e){
 				// check for empty geometry
 				outputMeshes.forEach(function(o){
 					if(o.geometry && o.geometry.faces.length === 0){
-						window.console.log('No faces in mesh', o.name);
+						console.log('No faces in mesh', o.name);
 					}
 				});
 
@@ -573,7 +572,7 @@ catch(e){
 				for(var i in bondCount)
 				{
 					if(bondCount[i] === 0 && molecule.atoms[i].type !== 'HETATM'){
-						window.console.log(molecule.atoms[i], 'is unbonded!');
+						console.log(molecule.atoms[i], 'is unbonded!');
 					}
 				}
 			}
@@ -621,7 +620,7 @@ catch(e){
 				}
 			}
 		});
-		window.console.log(totalBufferLength+' bytes of buffer data');
+		console.log(totalBufferLength+' bytes of buffer data');
 
 		// create the one buffer to rule them all
 		var buffer = new ArrayBuffer(totalBufferLength);
@@ -731,7 +730,7 @@ catch(e){
 
 	function deserialize(json)
 	{
-		window.console.log(json);
+		console.log(json);
 
 		var results = {
 			objects: {},
