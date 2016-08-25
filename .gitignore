@@ -4,3 +4,5 @@
 models/ribbon/src/*.dae
 models/ribbon/src/*.bin
 models/ribbon/src/*.gltf
+models/ribbon/src/*.mtl
+models/ribbon/src/*.obj
