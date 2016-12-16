@@ -9,38 +9,55 @@ try {
 	window.THREE = window.THREE || {};
 }
 catch(e){
-	var window = {
-		THREE: self.THREE,
-		console: {
-			log: function(){
-				self.postMessage({type: 'log', message: Array.prototype.slice.call(arguments).join(' ')});
-			}
+	self.console = {
+		log: function(){
+			self.postMessage({type: 'log', message: Array.prototype.slice.call(arguments).join(' ')});
 		}
 	};
+	console.warn = console.log;
+	console.error = console.log;
+	var window = self;
 }
 
 
 (function(THREE)
 {
+	var covalentRadius = {h:31, he:28, li:128, be:96, b:84, c:73, n:71, o:66, f:57, na:166, mg:141, al:121, si:111, p:107, s:105, cl:102, k:203, ca:176, sc:170, ti:160, v:153, cr:139, mn:139, fe:132, co:126, ni:124, cu:132, zn:122, ga:122, ge:120, as:119, se:120, br:120};
+
 	// atomic colors
 	var CPK = {"h":16777215,"he":14286847,"li":13402367,"be":12779264,"b":16758197,"c":9474192,"n":3166456,"o":16715021,"f":9494608,"ne":11789301,"na":11230450,"mg":9109248,"al":12560038,"si":15780000,"p":16744448,"s":16777008,"cl":2093087,"ar":8442339,"k":9388244,"ca":4062976,"sc":15132390,"ti":12567239,"v":10921643,"cr":9083335,"mn":10255047,"fe":14706227,"co":15765664,"ni":5296208,"cu":13140019,"zn":8224944,"ga":12750735,"ge":6721423,"as":12419299,"se":16752896,"br":10889513,"kr":6076625,"rb":7351984,"sr":65280,"y":9764863,"zr":9756896,"nb":7586505,"mo":5551541,"tc":3907230,"ru":2396047,"rh":687500,"pd":27013,"ag":12632256,"cd":16767375,"in":10909043,"sn":6717568,"sb":10380213,"te":13924864,"i":9699476,"xe":4366000,"cs":5707663,"ba":51456,"la":7394559,"ce":16777159,"pr":14286791,"nd":13107143,"pm":10747847,"sm":9437127,"eu":6422471,"gd":4587463,"tb":3211207,"dy":2097095,"ho":65436,"er":58997,"tm":54354,"yb":48952,"lu":43812,"hf":5096191,"ta":5089023,"w":2200790,"re":2522539,"os":2516630,"ir":1528967,"pt":13684960,"au":16765219,"hg":12105936,"tl":10900557,"pb":5724513,"bi":10375093,"po":11230208,"at":7688005,"rn":4358806,"fr":4325478,"ra":32000,"ac":7384058,"th":47871,"pa":41471,"u":36863,"np":33023,"pu":27647,"am":5528818,"cm":7888099,"bk":9064419,"cf":10565332,"es":11739092,"fm":11739066,"md":11734438,"no":12389767,"lr":13041766,"rf":13369433,"db":13697103,"sg":14221381,"bh":14680120,"hs":15073326,"mt":15400998,"ds":15400998,"rg":15400998,"cn":15400998,"uut":15400998,"uuq":15400998,"uup":15400998,"uuh":15400998,"uus":15400998,"uuo":15400998};
 
-	var covalentRadius = {h:31, he:28, li:128, be:96, b:84, c:73, n:71, o:66, f:57, na:166, mg:141, al:121, si:111, p:107, s:105, cl:102, k:203, ca:176, sc:170, ti:160, v:153, cr:139, mn:139, fe:132, co:126, ni:124, cu:132, zn:122, ga:122, ge:120, as:119, se:120, br:120};
+	// amino acid residue colors
+	var residueColors = {
+		ASP: 0xe60a0a, GLU: 0xe60a0a, // bright red
+		CYS: 0xe6e600, MET: 0xe6e600, // yellow
+		LYS: 0x145aff, ARG: 0x145aff, // blue
+		SER: 0xfa9600, THR: 0xfa9600, // orange
+		PHE: 0x3232aa, TYR: 0x3232aa, // mid blue
+		ASN: 0x00dcdc, GLN: 0x00dcdc, // cyan
+		GLY: 0xebebeb, // light grey
+		LEU: 0x0f820f, VAL: 0x0f820f, ILE: 0x0f820f, // green
+		ALA: 0xc8c8c8, // dark grey
+		TRP: 0xb45ab4, // pink
+		HIS: 0x8282d2, //pale blue
+		PRO: 0xdc9682 // flesh
+	};
 
-	function throttle(callback, timeout)
-	{
-		timeout = timeout || 20;
-		var wait = false;
-		return function(){
-			if(!wait){
-				callback.apply(undefined, arguments);
-				wait = true;
-				setTimeout(function(){
-					wait = false;
-				}, timeout);
-			}
-		};
-	}
+	// chain colors:  blue, red,      grey,    orange,   yellow,   tan,     silver,   green, white,    pink,     cyan,    purple,   lime
+	var chainColors = [255, 16711680, 5855577, 16744192, 16776960, 8355635, 10066329, 65280, 16777215, 16751001, 4177855, 10813605, 8381798];
+
+	// structure colors:
+	var structureColors = {
+		helix: {
+			default: 10813605, // purple
+			1: 10813605, // purple
+			5: 255, // blue
+			3: 16711680 // red
+		},
+		sheet: 8381798, // lime
+		other: 16777215 // white
+	};
+
 
 	THREE.PDBLoader = function ( manager ) {
 		this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
@@ -50,15 +67,20 @@ catch(e){
 
 		constructor: THREE.PDBLoader,
 
-		load: function ( url, onLoad, onProgress, onError ) {
+		load: function ( url, options, onLoad, onProgress, onError ) {
 
 			var scope = this;
 
-			if(window.Worker)
+			if(window.Worker /*&& false */)
 			{
-				window.console.log('spinning up worker');
+				console.log('spinning up worker');
 				var worker = new Worker('js/PDBLoaderImproved.js');
-				worker.postMessage('../'+url);
+
+				worker.postMessage({
+					url: /^http/.test(url) ? url : '../'+url,
+					options: options
+				});
+
 				worker.onmessage = function(msg)
 				{
 					var payload = msg.data;
@@ -71,6 +93,10 @@ catch(e){
 						onLoad(model, model.userData);
 						worker.terminate();
 					}
+					else if(payload.type === 'error')
+					{
+						onError(payload.message);
+					}
 				};
 			}
 			else
@@ -78,8 +104,12 @@ catch(e){
 				var loader = new THREE.XHRLoader( scope.manager );
 				loader.load( url, function (text)
 				{
+					var t0 = Date.now();
 					var json = scope.parsePDB(text);
-					var model = scope.createStickBallModels(json, null);
+					var model = scope.createStickBallModels(json, options);
+					var t1 = Date.now();
+					console.log((t1-t0)+'ms to load');
+
 					onLoad(model, json);
 				}, undefined, onError );
 			}
@@ -88,43 +118,88 @@ catch(e){
 
 		parsePDB: function(text)
 		{
-			function parseChainInfo(line)
+			function parseChain(line)
 			{
-				var chainRE = /^DBREF (.{4}) (.) (.{4})(.) (.{4})(.)/;
+				var chainRE = /^DBREF  (.{4}) (.) (.{4})(.) (.{4})(.) (.{6}) (.{8}) (.{12}) (.{5})(.) (.{5})(.)/;
 				var match = chainRE.exec(line);
 				if(match){
 					return {
 						proteinID: match[1].trim(),
 						chainID: match[2].trim(),
 						seqBegin: parseInt(match[3]),
-						seqEnd: parseInt(match[5])
+						insertBegin: match[4].trim(),
+						seqEnd: parseInt(match[5]),
+						insertEnd: match[6].trim(),
+						database: match[7].trim(),
+						dbAccession: match[8].trim(),
+						dbIdCode: match[9].trim(),
+						dbseqBegin: parseInt(match[10]),
+						idbnsBeg: match[11].trim(),
+						dbseqEnd: parseInt(match[12]),
+						dbinsEnd: match[13].trim()
 					}
 				}
 				else return null;
 			}
 
-			function parseModel(lines)
+			function parseHelix(line)
 			{
-				var modelRE = /^MODEL     (.{4})/;
-				var endmdlRE = /^ENDMDL/;
-
-				// check for start and end tags
-				var match = modelRE.exec(lines[0]);
-				if(match)
-					var modelNum = parseInt(match[1]);
-
-				// load atom list
-				var atoms = [];
-				for(var i=1; i<lines.length-1; i++)
-				{
-					var atom = parseAtom(lines[i]);
-					if(atom) atoms.push(atom);
+				var helixRE = /^HELIX  (.{3}) (.{3}) (.{3}) (.) (.{4})(.) (.{3}) (.) (.{4})(.)(.{2})(.{30}) (.{5})/;
+				var match = helixRE.exec(line);
+				if(match){
+					return {
+						serNum: parseInt(match[1]),
+						helixID: match[2].trim(),
+						initResName: match[3].trim(),
+						initChainID: match[4].trim(),
+						initSeqNum: parseInt(match[5]),
+						initICode: match[6].trim(),
+						endResName: match[7].trim(),
+						endChainID: match[8].trim(),
+						endSeqNum: parseInt(match[9]),
+						endICode: match[10].trim(),
+						helixClass: parseInt(match[11]),
+						comment: match[12].trim(),
+						length: parseInt(match[13])
+					};
 				}
+				else return null;
+			}
 
-				return {
-					serial: modelNum,
-					atoms: atoms
-				};
+			function parseSheet(line)
+			{
+				if(/^SHEET/.test(line)){
+					return {
+						strand: parseInt(line.substring(7,10)),
+						sheetID: line.substring(11,14).trim(),
+						numStrands: parseInt(line.substring(14,16)),
+
+						initResName: line.substring(17,20).trim(),
+						initChainID: line.substring(21,22).trim(),
+						initSeqNum: parseInt(line.substring(22,26)),
+						initICode: line.substring(26,27).trim(),
+
+						endResName: line.substring(28,31).trim(),
+						endChainID: line.substring(32,33).trim(),
+						endSeqNum: parseInt(line.substring(33,37)),
+						endICode: line.substring(37,38).trim(),
+
+						sense: parseInt(line.substring(38,40)),
+
+						curAtom: line.substring(41,45).trim(),
+						curResName: line.substring(45,48).trim(),
+						curChainID: line.substring(49,50).trim(),
+						curResSeq: parseInt(line.substring(50,54)),
+						curICode: line.substring(54,55).trim(),
+
+						prevAtom: line.substring(56,60).trim(),
+						prevResName: line.substring(60,63).trim(),
+						prevChainID: line.substring(64,65).trim(),
+						prevResSeq: parseInt(line.substring(65,69)),
+						prevICode: line.substring(69,70).trim()
+					}
+				}
+				else return null;
 			}
 
 			function parseAtom(line)
@@ -139,19 +214,19 @@ catch(e){
 					return {
 						type: match[0].slice(0,6).trim(),
 						serial: parseInt(fields[0]),
-						name: fields[1],
-						altLoc: fields[2],
-						resName: fields[3],
-						chainID: fields[4],
-						resSeq: fields[5],
-						iCode: fields[6],
+						name: fields[1].trim(),
+						altLoc: fields[2].trim(),
+						resName: fields[3].trim(),
+						chainID: fields[4].trim(),
+						resSeq: parseInt(fields[5]),
+						iCode: fields[6].trim(),
 						x: parseFloat(fields[7]),
 						y: parseFloat(fields[8]),
 						z: parseFloat(fields[9]),
 						occupancy: parseFloat(fields[10]),
 						tempFactor: parseFloat(fields[11]),
-						element: fields[12],
-						charge: fields[13]
+						element: fields[12].trim(),
+						charge: fields[13].trim()
 					};
 				}
 
@@ -181,51 +256,44 @@ catch(e){
 				lines = text.split('\n');
 
 			var cursor = 0;
-			var data = {};
+			var data = {
+				atoms: [],
+				bonds: [],
+				chains: [],
+				helixes: [],
+				sheets: []
+			};
+			var endmdlFlag = false;
 
-			// check for MODELs
-			var start, end;
-			for(var i=cursor; i<lines.length; i++){
-				if(start !== undefined && /^ENDMDL/.test(lines[i])){
-					end = i;
-					break;
-				}
-				else if(/^MODEL/.test(lines[i]))
-					start = i;
-			}
-
-			if( start !== undefined && end !== undefined ){
-				data.model = parseModel( lines.slice(cursor+start, cursor+end+1) );
-				cursor += end+1;
-			}
-			// load all atoms into one model if no MODEL/ENDMDL tags
-			else
+			for(var i=0; i<lines.length; i++)
 			{
-				data.model = parseModel( lines );
+				var result = null;
+				if(result = parseChain(lines[i]))
+					data.chains.push(result);
+				else if(result = parseHelix(lines[i]))
+					data.helixes.push(result);
+				else if(result = parseSheet(lines[i]))
+					data.sheets.push(result);
+				else if(/^ENDMDL/.test(lines[i]))
+					endmdlFlag = true;
+				else if(!endmdlFlag && (result = parseAtom(lines[i])))
+					data.atoms.push(result);
+				else if(result = parseBond(lines[i]))
+					data.bonds.push(result);
 			}
-
-			// load manual connections
-			var bonds = lines
-				.slice(cursor)
-				.map(function(e){ return parseBond(e); })
-				.filter(function(e){ return !!e; });
-
-			data.bonds = bonds;
 
 			return data;
 		},
 
-		createStickBallModels: function(json, options)
+		createStickBallModels: function(molecule, options)
 		{
 			// define default options
 			options = options || {};
-			options.mergeLikeAtoms = options.mergeLikeAtoms !== undefined ? options.mergeLikeAtoms : true;
 			options.meshVertexLimit = options.meshVertexLimit || 65000;
 			options.bondFudgeFactor = options.bondFudgeFactor || 0.16;
 			options.verbose = options.verbose !== undefined ? options.verbose : true;
 			options.atomCutoff = options.atomCutoff || 14000;
-
-			var molecule = json.model;
+			options.colorScheme = ['residue','structure','chain','none'].indexOf(options.colorScheme) > -1 ? options.colorScheme : 'none';
 
 			if(molecule.atoms.length > options.atomCutoff){
 				console.error(molecule.atoms.length+' atoms is too large to render, aborting.');
@@ -233,20 +301,15 @@ catch(e){
 			}
 
 			var outputMeshes = [];
-			var atomMap = {};
-			var bondMap = {};
+			var meshMap = {};
+			var bondConnectivityMap = {};
+			var materialMap = {};
 
-			var max = new THREE.Vector3(), min = new THREE.Vector3();
+			var bounds = new THREE.Box3();
 
-			var stick = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1, 3, 1, true), new THREE.MeshBasicMaterial({color: 0xffffff}));
-			stick.geometry.rotateX(Math.PI/2);
-			var ballGeometry = new THREE.BoxGeometry(0.2,0.2,0.2);
-			
-			var bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-			bonds.name = 'bonds';
-			if(options.mergeLikeAtoms)
-				outputMeshes.push(bonds);
-
+			var stickGeometry = new THREE.CylinderGeometry(0.07, 0.07, 1, 3, 1, true);
+			stickGeometry.rotateX(Math.PI/2);
+			var ballGeometry = new THREE.BoxGeometry(0.3,0.3,0.3);
 
 			// loop over all atoms in the molecule
 			molecule.atoms.forEach(function(atom, i)
@@ -255,40 +318,35 @@ catch(e){
 				* Generate atom balls
 				*/
 				var e = atom.element.toLowerCase();
+				var color = CPK[e];
 
 				// index materials and/or meshes
-				if(!atomMap[e])
+				if(!meshMap[color])
 				{
-					atomMap[e] = new THREE.Mesh(new THREE.Geometry(), new THREE.MeshBasicMaterial({color: CPK[e]}));
-					atomMap[e].name = e+'_group';
-					if(options.mergeLikeAtoms)
-						outputMeshes.push(atomMap[e]);
+					if(!materialMap[color])
+						materialMap[color] = new THREE.MeshBasicMaterial({color: color});
+
+					meshMap[color] = new THREE.Mesh(new THREE.Geometry(), materialMap[color]);
+					outputMeshes.push(meshMap[color]);
 				}
 
-				var mesh = new THREE.Mesh(ballGeometry, atomMap[e].material);
-				mesh.name = 'atom_'+atom.serial;
+				var mesh = new THREE.Mesh(ballGeometry, materialMap[color]);
 
 				// position in angstroms
 				mesh.position.set(atom.x, atom.y, atom.z);
 				mesh.updateMatrix();
 
 				// update bounds of molecule for later centering
-				max.max(mesh.position);
-				min.min(mesh.position);
+				bounds.expandByPoint(mesh.position);
 
 				// add to molecule
-				if(options.mergeLikeAtoms)
+				if(meshMap[color].geometry.faces.length*3 + mesh.geometry.faces.length*3 > options.meshVertexLimit)
 				{
-					if(atomMap[e].geometry.faces.length*3 + mesh.geometry.faces.length*3 > options.meshVertexLimit)
-					{
-						atomMap[e] = new THREE.Mesh(new THREE.Geometry(), atomMap[e].material);
-						outputMeshes.push(atomMap[e]);
-					}
-
-					atomMap[e].geometry.mergeMesh(mesh);
+					meshMap[color] = new THREE.Mesh(new THREE.Geometry(), materialMap[color]);
+					outputMeshes.push(meshMap[color]);
 				}
-				else
-					outputMeshes.push(mesh);
+
+				meshMap[color].geometry.mergeMesh(mesh);
 
 
 				/*
@@ -315,34 +373,79 @@ catch(e){
 					if( Math.abs(dist - covalentDist) <= options.bondFudgeFactor*covalentDist )
 					{
 						// add to bond map
-						if(bondMap[i]) bondMap[i].push(j);
-						else bondMap[i] = [j];
+						if(bondConnectivityMap[i]) bondConnectivityMap[i].push(j);
+						else bondConnectivityMap[i] = [j];
+
+						// determine color of bond
+						var bondColor = structureColors.other;
+
+						// color by chain
+						if(options.colorScheme === 'chain')
+						{
+							for(var chainIndex = 0; chainIndex < molecule.chains.length; chainIndex++){
+								if(molecule.chains[chainIndex].chainID === atom.chainID)
+									break;
+							}
+							bondColor = chainColors[chainIndex];
+						}
+
+						// color by structure
+						else if(options.colorScheme === 'structure')
+						{
+							var found = false;
+
+							// check for helix
+							for(var helixIndex = 0; !found && helixIndex < molecule.helixes.length; helixIndex++)
+							{
+								var h = molecule.helixes[helixIndex];
+								if(atom.chainID === h.initChainID && atom.resSeq >= h.initSeqNum && atom.resSeq <= h.endSeqNum
+									&& neighbor.chainID === h.initChainID && neighbor.resSeq >= h.initSeqNum && neighbor.resSeq <= h.endSeqNum){
+									bondColor = structureColors.helix[h.helixClass] || structureColors.helix.default;
+									found = true;
+								}
+							}
+
+							// check for sheets
+							for(var sheetIndex = 0; !found && sheetIndex < molecule.sheets.length; sheetIndex++)
+							{
+								var s = molecule.sheets[sheetIndex];
+								if(atom.chainID === s.initChainID && atom.resSeq >= s.initSeqNum && atom.resSeq <= s.endSeqNum
+									&& neighbor.chainID === s.initChainID && neighbor.resSeq >= s.initSeqNum && neighbor.resSeq <= s.endSeqNum){
+									bondColor = structureColors.sheet;
+									found = true;
+								}
+							}
+						}
+
+						// color by residue
+						else if(options.colorScheme === 'residue' && atom.resSeq === neighbor.resSeq){
+							bondColor = residueColors[atom.resName];
+						}
+
+						if(!materialMap[bondColor])
+							materialMap[bondColor] = new THREE.MeshBasicMaterial({color: bondColor});
 
 						// generate stick
 						var start = mesh.position, end = v2;
+						var stick = new THREE.Mesh(stickGeometry, materialMap[bondColor]);
 						stick.position.copy( start );
 						stick.position.lerp( end, 0.5 );
 						stick.scale.setZ( start.distanceTo( end ) );
 						stick.lookAt( end );
 
-						if(options.mergeLikeAtoms)
+						if(!meshMap[bondColor] || meshMap[bondColor].geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
 						{
-							if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
-							{
-								bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-								outputMeshes.push(bonds);
-							}
-
-							bonds.geometry.mergeMesh(stick);
+							meshMap[bondColor] = new THREE.Mesh(new THREE.Geometry(), materialMap[bondColor]);
+							outputMeshes.push(meshMap[bondColor]);
 						}
-						else
-							outputMeshes.push( stick.clone() );
+
+						meshMap[bondColor].geometry.mergeMesh(stick);
 					}
 				}
 			});
 
 			// generate manual bonds
-			json.bonds.forEach(function(bond)
+			molecule.bonds.forEach(function(bond)
 			{
 				for(var i=1; bond['bond'+i] && i<=4; i++)
 				{
@@ -351,40 +454,87 @@ catch(e){
 						b = Math.max(bond.atomIndex, bond['bond'+i]) - 1;
 
 					var aa = molecule.atoms[a], ab = molecule.atoms[b];
+					if(!aa || !ab) continue;
+
 					var va = new THREE.Vector3(aa.x, aa.y, aa.z);
 					var vb = new THREE.Vector3(ab.x, ab.y, ab.z);
 
-					if( !bondMap[a] || bondMap[a].indexOf(b) === -1 )
+					if( (!bondConnectivityMap[a] || bondConnectivityMap[a].indexOf(b) === -1) && va.distanceTo(vb) <= 7 )
 					{
 						// add to bond map
-						bondMap[a] = bondMap[a] || [];
-						bondMap[a].push(b);
+						bondConnectivityMap[a] = bondConnectivityMap[a] || [];
+						bondConnectivityMap[a].push(b);
+
+						// determine color of bond
+						var bondColor = structureColors.other;
+
+						// color by chain
+						if(options.colorScheme === 'chain')
+						{
+							for(var chainIndex = 0; chainIndex < molecule.chains.length; chainIndex++){
+								if(molecule.chains[chainIndex].chainID === aa.chainID)
+									break;
+							}
+							bondColor = chainColors[chainIndex];
+						}
+
+						// color by structure
+						else if(options.colorScheme === 'structure')
+						{
+							var found = false;
+
+							// check for helix
+							for(var helixIndex = 0; !found && helixIndex < molecule.helixes.length; helixIndex++)
+							{
+								var h = molecule.helixes[helixIndex];
+								if(aa.chainID === h.initChainID && aa.resSeq >= h.initSeqNum && aa.resSeq <= h.endSeqNum
+									&& ab.chainID === h.initChainID && ab.resSeq >= h.initSeqNum && ab.resSeq <= h.endSeqNum){
+									bondColor = structureColors.helix[h.helixClass] || structureColors.helix.default;
+									found = true;
+								}
+							}
+
+							// check for sheets
+							for(var sheetIndex = 0; !found && sheetIndex < molecule.sheets.length; sheetIndex++)
+							{
+								var s = molecule.sheets[sheetIndex];
+								if(aa.chainID === s.initChainID && aa.resSeq >= s.initSeqNum && aa.resSeq <= s.endSeqNum
+									&& ab.chainID === s.initChainID && ab.resSeq >= s.initSeqNum && ab.resSeq <= s.endSeqNum){
+									bondColor = structureColors.sheet;
+									found = true;
+								}
+							}
+						}
+
+						// color by residue
+						else if(options.colorScheme === 'residue' && aa.resSeq === ab.resSeq){
+							bondColor = residueColors[aa.resName];
+						}
+
+						if(!materialMap[bondColor])
+							materialMap[bondColor] = new THREE.MeshBasicMaterial({color: bondColor});
 
 						// generate stick
+						var stick = new THREE.Mesh(stickGeometry, materialMap[bondColor]);
 						stick.position.copy( va );
 						stick.position.lerp( vb, 0.5 );
 						stick.scale.setZ( va.distanceTo( vb ) );
 						stick.lookAt( vb );
 
-						if(options.mergeLikeAtoms)
+						if(!meshMap[bondColor] || meshMap[bondColor].geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
 						{
-							if(bonds.geometry.faces.length*3 + stick.geometry.faces.length*3 > options.meshVertexLimit)
-							{
-								bonds = new THREE.Mesh(new THREE.Geometry(), stick.material);
-								outputMeshes.push(bonds);
-							}
-
-							bonds.geometry.mergeMesh(stick);
+							meshMap[bondColor] = new THREE.Mesh(new THREE.Geometry(), materialMap[bondColor]);
+							outputMeshes.push(meshMap[bondColor]);
 						}
-						else
-							outputMeshes.push( stick.clone() );
+
+						meshMap[bondColor].geometry.mergeMesh(stick);
 					}
 				}
 			});
 
 			// calculate geometry offset
-			var offset = max.add(min).multiplyScalar(0.5).negate();
-			window.console.log(offset.toArray());
+			var offset = bounds.center().negate();
+			console.log('pdb offset: '+offset.toArray());
 			outputMeshes.forEach(function(m){
 				m.geometry.translate(offset.x, offset.y, offset.z);
 			});
@@ -395,7 +545,7 @@ catch(e){
 				// check for empty geometry
 				outputMeshes.forEach(function(o){
 					if(o.geometry && o.geometry.faces.length === 0){
-						window.console.log('No faces in mesh', o.name);
+						console.log('No faces in mesh', o.name);
 					}
 				});
 
@@ -405,11 +555,11 @@ catch(e){
 					bondCount[i] = 0;
 				});
 
-				for(var i in bondMap)
+				for(var i in bondConnectivityMap)
 				{
-					bondCount[i] += bondMap[i].length;
-					for(var j=0; j<bondMap[i].length; j++){
-						bondCount[ bondMap[i][j] ] += 1;
+					bondCount[i] += bondConnectivityMap[i].length;
+					for(var j=0; j<bondConnectivityMap[i].length; j++){
+						bondCount[ bondConnectivityMap[i][j] ] += 1;
 					}
 				}
 
@@ -422,7 +572,7 @@ catch(e){
 				for(var i in bondCount)
 				{
 					if(bondCount[i] === 0 && molecule.atoms[i].type !== 'HETATM'){
-						window.console.log(molecule.atoms[i], 'is unbonded!');
+						console.log(molecule.atoms[i], 'is unbonded!');
 					}
 				}
 			}
@@ -430,7 +580,7 @@ catch(e){
 			// convert finished model into buffer geometry
 			// may as well, we're not changing it
 			var model = new THREE.Object3D();
-			model.userData = json;
+			model.userData = molecule;
 
 			outputMeshes.forEach(function(mesh1)
 			{
@@ -470,7 +620,7 @@ catch(e){
 				}
 			}
 		});
-		window.console.log(totalBufferLength+' bytes of buffer data');
+		console.log(totalBufferLength+' bytes of buffer data');
 
 		// create the one buffer to rule them all
 		var buffer = new ArrayBuffer(totalBufferLength);
@@ -564,7 +714,7 @@ catch(e){
 							geo[key].type = 'Int32';
 							type = Int32Array;
 						}
-						
+
 						// copy buffer to grand buffer
 						var dest = new type(buffer, offset);
 						dest.set(attr.array);
@@ -580,7 +730,7 @@ catch(e){
 
 	function deserialize(json)
 	{
-		window.console.log(json);
+		console.log(json);
 
 		var results = {
 			objects: {},
@@ -654,14 +804,21 @@ catch(e){
 
 	function handleWorkerMessage(evt)
 	{
+		var data = evt.data
 		var loader = new THREE.PDBLoader();
-		loader.load(evt.data, function(model)
-		{
-			var serial = serialize(model);
-			var json = serial[0];
-			var buffers = serial[1];
-			postMessage({type: 'model', data: json}, buffers);
-		});
+		loader.load(data.url, data.options,
+			function(model){
+				var serial = serialize(model);
+				var json = serial[0];
+				var buffers = serial[1];
+				postMessage({type: 'model', data: json}, buffers);
+			},
+			null,
+			function(evt){
+				var msg = [evt.target.status, evt.target.statusText, evt.target.responseURL].join(' ');
+				postMessage({type: 'error', message: msg});
+			}
+		);
 	}
 
 	try {
@@ -671,7 +828,7 @@ catch(e){
 		if( !/onmessage is not defined$/.test(e.toString()) )
 			throw e;
 	}
-	
+
 
 })(window.THREE);
 

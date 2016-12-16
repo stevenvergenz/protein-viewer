@@ -1,31 +1,44 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<title>Protein Viewer - AltPDB</title>
 		<script src="lib/three.r74.min.js"></script>
 		<script src="lib/altspace-0.16.0.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/async/1.5.2/async.min.js"></script>
 		<script src="lib/glTF-loader.js"></script>
 		<script src="js/PDBLoaderImproved.js"></script>
+		<script src="js/utils.js"></script>
 
 		<style>
 			.bar {
+				color: white;
+				background-color: black;
+				font-size: 24px;
+				font-weight: bold;
 			}
 
 			.item {
 				display: inline-block;
-				padding: 5px 10px;
+				padding: 5px;
 
-				text-align: center;
-				font-size: 24px;
-				font-weight: bold;
 
 				background-color: black;
 				color: white;
 				text-decoration: none;
 			}
 
+			.item:hover {
+				text-decoration: underline;
+			}
+
 			h1 {
 				color: white;
+			}
+
+			form, form > input {
+				font-size: 24px;
+				color: white;
+				background-color: black;
 			}
 
 			canvas {
@@ -37,43 +50,98 @@
 
 		<script>
 
-			function navigate(mol){
-				var path = '?molecule='+mol;
-				if(/[&?]noribbon/.test(window.location.search))
-					path += '&noribbon';
-				if(/[&?]noball/.test(window.location.search))
-					path += '&noball';
+			function toggleOptions(option, value)
+			{
+				function toggleOption(path, option, value)
+				{
+					var re = new RegExp('[&?]'+option+'(?:=([^&]+))?');
+					var match = re.exec(path);
+
+					if(match)
+					{
+						// remove option
+						if(value === undefined || value === false)
+							path = path.replace(match[0], '');
+						// replace existing option unless new value is boolean
+						else if(value !== true)
+							path = path.replace(match[1], value);
+					}
+					else
+					{
+						// add boolean option
+						if(value === undefined || value === true)
+							path += '&'+option;
+						// add key/value option
+						else if(value !== false)
+							path += '&'+option+'='+value;
+					}
+
+					path = '?' + path.slice(1);
+					return path;
+				}
+
+				var path = window.location.search;
+				if(option instanceof Object){
+					for(var i in option){
+						path = toggleOption(path, i, option[i]);
+					}
+				}
+				else
+				{
+					path = toggleOption(path, option, value);
+				}
 
 				window.location.replace(path);
 				return false;
 			}
 
-			function toggleOption(option){
-				var path = window.location.search;
-				var re = new RegExp('[&?]'+option);
-				if( re.test(path) )
-					path = path.replace(re, '');
-				else
-					path += '&'+option;
-
-				path = '?' + path.slice(1);
-				window.location.replace(path);
+			function toggleCustomDialog(){
+				var form = document.querySelector('form');
+				if(form.style.display === 'none'){
+					form.style.display = '';
+					document.querySelector('a#other').style.color = '#87ceeb';
+				}
+				else {
+					form.style.display = 'none';
+					document.querySelector('a#other').style.color = '';
+				}
 				return false;
+			}
+
+			function constructUrl(evt){
+				return toggleOptions({molecule: evt.target[0].value.toUpperCase(), noribbon: true, noball: false});
 			}
 
 		</script>
 	</head>
 	<body>
-		<p class='bar'>
-			<a href='?molecule=2VAA' onclick='return navigate("2VAA");' class='item' id='2VAA'>2VAA</a>
-			<a href='?molecule=2M6C' onclick='return navigate("2M6C");' class='item' id='2M6C'>2M6C</a>
-			<a href='?molecule=3UTQ' onclick='return navigate("3UTQ");' class='item' id='3UTQ'>3UTQ</a>
-			<a href='?molecule=4X5W' onclick='return navigate("4X5W");' class='item' id='4X5W'>4X5W</a>
-			<a href='?molecule=1AQD' onclick='return navigate("1AQD");' class='item' id='1AQD'>1AQD</a>
-			<a href='?molecule=1J8H' onclick='return navigate("1J8H");' class='item' id='1J8H'>1J8H</a>
-			<a href='javascript:;' onclick='return toggleOption("noribbon");' class='item' id='noribbon'>Sub-structures</a>
-			<a href='javascript:;' onclick='return toggleOption("noball");' class='item' id='noball'>No Bonds</a>
-		</p>
+		<div class='bar'>
+			<a href='?molecule=2VAA' onclick='return toggleOptions("molecule","2VAA");' class='item' id='2VAA'>2VAA</a>
+			<a href='?molecule=3UTQ' onclick='return toggleOptions("molecule","3UTQ");' class='item' id='3UTQ'>3UTQ</a>
+			<a href='?molecule=4X5W' onclick='return toggleOptions("molecule","4X5W");' class='item' id='4X5W'>4X5W</a>
+			<a href='?molecule=3WPG' onclick='return toggleOptions("molecule","3WPG");' class='item' id='3WPG'>3WPG</a>
+			<a href='?molecule=1J8H' onclick='return toggleOptions("molecule","1J8H");' class='item' id='1J8H'>1J8H</a>
+			<a href='?molecule=1AQD' onclick='return toggleOptions("molecule","1AQD");' class='item' id='1AQD'>1AQD</a>
+			<a href='?molecule=2WBJ' onclick='return toggleOptions("molecule","2WBJ");' class='item' id='2WBJ'>2WBJ</a>
+			<a href='javascript:;' onclick='return toggleCustomDialog();' class='item' id='other'>Other</a>
+		</div>
+		<form onsubmit='return constructUrl(event);' style='display:none;'>
+			<span>Protein Data Bank ID: </span>
+			<input name='mol' type='text'></input>
+			<input type='submit' value='Go'></input>
+		</form>
+		<div class='bar'>
+			Show:
+			<a href='javascript:;' onclick='return toggleOptions("noribbon");' class='item' id='ribbon'>Ribbon</a>
+			<a href='javascript:;' onclick='return toggleOptions("noball");' class='item' id='ball'>Ball</a>
+			|
+			Color:
+			<a href='javascript:;' onclick='return toggleOptions("color","residue");' class='item' id='residue'>Residue</a>
+			<a href='javascript:;' onclick='return toggleOptions("color","structure");' class='item' id='structure'>Structure</a>
+			<a href='javascript:;' onclick='return toggleOptions("color","chain");' class='item' id='chain'>Chain</a>
+			<a href='javascript:;' onclick='return toggleOptions("color");' class='item' id='nocolor'>None</a>
+		</div>
+
 		<div style='text-align: center;' id='loading'>
 			<img src='img/benzene.gif' alt='Loading'/>
 			<h1>Loading...</h1>
